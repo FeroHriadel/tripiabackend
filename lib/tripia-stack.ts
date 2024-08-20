@@ -5,6 +5,7 @@ import { initTables } from './tables/initTables';
 import { initLambdas } from './lambdas/initLambdas';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AppApiGateway } from './apiGateway/AppApiGateway';
+import { attachLambdasToApi } from './lambdas/attachLambdasToApi';
 
 
 
@@ -23,6 +24,8 @@ export class TripiaStack extends cdk.Stack {
   private initialize() {
     this.initializeTables();
     this.initializeLambdas();
+    this.initApiGateway();
+    this.attachLambdas();
   }
 
   private initializeTables() {
@@ -37,7 +40,11 @@ export class TripiaStack extends cdk.Stack {
     });
   }
 
-  private initApigateway() {
+  private initApiGateway() {
     this.apiGateway = new AppApiGateway(this).api;
+  }
+
+  private attachLambdas() {
+    attachLambdasToApi({api: this.apiGateway, lambdas: this.lambdas});
   }
 }
