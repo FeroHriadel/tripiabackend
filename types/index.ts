@@ -1,4 +1,5 @@
 import { Table } from "aws-cdk-lib/aws-dynamodb"
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 
 
@@ -12,4 +13,11 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   type: "#CATEGORY";
+}
+
+export interface AppLambdas {
+  categoryCreate?: NodejsFunction,
+  categoryGet?: NodejsFunction,
+  categoryUpdate?: NodejsFunction,
+  categoryDelete?: NodejsFunction
 }
