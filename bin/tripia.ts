@@ -7,6 +7,12 @@ dotenv.config();
 
 
 
+/*********************************************************
+ - deploy like: `$ cdk deploy --profile ferohriadeladmin`
+**********************************************************/
+
+
+
 const appName = 'tripia' + '-' + process.env.STAGE;
 const region = process.env.REGION;
 const accountId = process.env.ACCOUNT_ID;

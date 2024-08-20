@@ -1,14 +1,32 @@
-# Welcome to your CDK TypeScript project
+# TRIPIA
+- aws serverless IaC backend infrastructure
+- backed for a frontend app !TODO: PASTE LINK TO FE!
+<br />
 
-This is a blank project for CDK development with TypeScript.
+## FEATURES
+- IaC
+- serverless (should scale fantasticaly)
+- dynamoDB
+- lambdas
+- apiGateway
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## SOFTWARE VERSIONS
+Developed with:
+- aws cli 2.17.27
+- aws-cdk 2.153.0
+- aws-sdk 3.632
+- node 20.12.2
 
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+## DEPLOYMENT
+- download and install aws cli, 
+- `npm i -g aws-cdk` 
+- create an IAM user with sufficient rights in AWS Console. Get the accessKey and secretKey.
+- create a .env in the root and put in the follwoing:
+```
+STAGE = dev
+REGION = us-east-1
+ACCOUNT_ID = 222677608122
+```
+- run `$ npm i`
+- `$ aws configure --profile myprofile` => you'll need accessKey and secretKey IDs from AWS Console/IAM for this.
+- `$ cdk deploy --profile myprofile`
