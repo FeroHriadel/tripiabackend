@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { ResponseError } from "./ResponseError";
 
 
 
@@ -15,4 +16,12 @@ export function res(statusCode: number, body: {[key: string]: any} | any[]) {
   };
   log('Responding: ', response);
   return response;
+}
+
+export function checkRequiredKeys(requiredKeys: string[], objectToCheck: {[key: string]: any}) {
+  requiredKeys.forEach(key => {
+    if (!Object.prototype.hasOwnProperty.call(objectToCheck, key)) {
+      throw new ResponseError(400, `${key} is required`);
+    }
+  });
 }
