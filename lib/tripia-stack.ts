@@ -35,7 +35,8 @@ export class TripiaStack extends cdk.Stack {
   private initializeLambdas() {
     this.lambdas = initLambdas(this, {
       tables: {
-        categoriesTable: this.tables.categoriesTable
+        categoriesTable: this.tables.categoriesTable,
+        tripsTable: this.tables.tripsTable
       }
     });
   }

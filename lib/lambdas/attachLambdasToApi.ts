@@ -18,6 +18,12 @@ interface AddCategoryEndpointsProps {
   authorizer?: CognitoUserPoolsAuthorizer;
 };
 
+interface AddTripEndpointsProps {
+  api: RestApi;
+  lambdaIntegrations: {[key: string]: LambdaIntegration};
+  authorizer?: CognitoUserPoolsAuthorizer;
+}
+
 
 
 //HELPERS:
@@ -65,9 +71,19 @@ function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
 
 
 
+//TRIPS
+function addTripEndpoints(props: AddTripEndpointsProps) {
+  const { api, lambdaIntegrations, authorizer } = props;
+  const resource = createResource({pathName: 'trips', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripCreate`], method: 'POST'});
+}
+
+
+
 //MAIN FUNCTION
 export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   const { api, lambdas, authorizer } = props;
   const lambdaIntegrations = createLambdaIntegrations(lambdas);
   addCategoryEndpoints({api, lambdaIntegrations, authorizer});
+  addTripEndpoints({api, lambdaIntegrations, authorizer});
 }

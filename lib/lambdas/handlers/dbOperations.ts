@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Category } from "../../../types";
+import { Category, Trip } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -80,5 +80,17 @@ export async function deleteCategory(id: string) {
       Key: {id}
   }
   const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
+}
+
+
+
+//TRIPS
+export async function saveTrip(trip: Trip) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!, 
+      Item: marshall(trip),
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
   return response;
 }
