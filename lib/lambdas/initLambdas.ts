@@ -42,5 +42,6 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables } = props;
   initCategoryLambdas(stack, {table: tables.categoriesTable});
+  initTripLambdas(stack, {table: tables.tripsTable});
   return appLambdas;
 }
