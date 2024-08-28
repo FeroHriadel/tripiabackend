@@ -1,4 +1,4 @@
-import { DynamoDB, PutItemCommand, PutItemCommandInput } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { Category, Trip } from "../../../types";
@@ -10,6 +10,7 @@ dotenv.config();
 
 const client = new DynamoDB({region: process.env.REGION});
 const docClient = DynamoDBDocumentClient.from(client);
+const pageSize = 3;
 
 
 
@@ -93,4 +94,34 @@ export async function saveTrip(trip: Trip) {
   };
   const response = await docClient.send(new PutItemCommand(putParams));
   return response;
+}
+
+export async function getTripById(id: string) {
+  const getParams = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'Trip not found');
+  return response.Item;
+}
+
+export async function getAllTrips(lastEvaluatedKey?: Record<string, any>) {
+  const queryParams: QueryCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      IndexName: 'dateSort',
+      KeyConditionExpression: '#type = :type',
+      ExpressionAttributeNames: {'#type': 'type'},
+      //@ts-ignore
+      ExpressionAttributeValues: {':type': '#TRIP'}, //TS wants: {':type': {S: '#TRIP'}} but the request breaks then
+      ScanIndexForward: true,
+      Limit: pageSize
+  };
+  if (lastEvaluatedKey) queryParams.ExclusiveStartKey = lastEvaluatedKey; //use the LastEvaluatedKey from the previous query
+  const response = await docClient.send(new QueryCommand(queryParams));
+  if (!response?.Items) throw new ResponseError(500, 'DB query failed');
+  return {
+    items: response.Items,
+    lastEvaluatedKey: response.LastEvaluatedKey,  //include LastEvaluatedKey in the response
+  };
 }

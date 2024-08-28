@@ -37,6 +37,7 @@ function initCategoryLambdas(stack: Stack, props: InitCategoriesLambdasProps) {
 function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
   const { table } = props;
   appLambdas.tripCreate = new AppLambda(stack, {lambdaName: 'tripCreate', folder: 'trips', table, tableWriteRights: true}).lambda;
+  appLambdas.tripGet = new AppLambda(stack, {lambdaName: 'tripGet', folder: 'trips', table}).lambda;
 }
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
