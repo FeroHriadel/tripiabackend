@@ -4,6 +4,7 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Category, Trip } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
+import { log } from "./utils";
 dotenv.config();
 
 
@@ -124,4 +125,45 @@ export async function getAllTrips(lastEvaluatedKey?: Record<string, any>) {
     items: response.Items,
     lastEvaluatedKey: response.LastEvaluatedKey,  //include LastEvaluatedKey in the response
   };
+}
+
+
+export async function updateTrip(trip: Trip) {
+  const { id, name, departureTime, departureFrom, destination, description } = trip;
+  log(trip);
+  const updateParams: UpdateCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id},
+      UpdateExpression: `
+        set 
+          #name = :name,
+          #departureTime = :departureTime,
+          #departureFrom = :departureFrom,
+          #destination = :destination,
+          #description = :description,
+          #updatedAt = :updatedAt
+      `,
+      ExpressionAttributeNames: {
+        '#name': 'name',
+        '#departureTime': 'departureTime',
+        '#departureFrom': 'departureFrom',
+        '#destination': 'destination',
+        '#description': 'description',
+        '#updatedAt': 'updatedAt'
+
+      },
+      ExpressionAttributeValues: {
+        ':name': name,
+        ':departureTime': departureTime,
+        ':departureFrom': departureFrom,
+        ':destination': destination,
+        ':description': description,
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+  };
+  log(updateParams);
+  const response = await docClient.send(new UpdateCommand(updateParams));
+  if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
+  return response.Attributes;
 }

@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { App, Stack } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
 import { AppLambdas, AppTables } from "../../types";
@@ -38,6 +38,7 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
   const { table } = props;
   appLambdas.tripCreate = new AppLambda(stack, {lambdaName: 'tripCreate', folder: 'trips', table, tableWriteRights: true}).lambda;
   appLambdas.tripGet = new AppLambda(stack, {lambdaName: 'tripGet', folder: 'trips', table}).lambda;
+  appLambdas.tripUpdate = new AppLambda(stack, {lambdaName: 'tripUpdate', folder: 'trips', table, tableWriteRights: true}).lambda;
 }
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
