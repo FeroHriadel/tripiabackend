@@ -39,6 +39,7 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
   appLambdas.tripCreate = new AppLambda(stack, {lambdaName: 'tripCreate', folder: 'trips', table, tableWriteRights: true}).lambda;
   appLambdas.tripGet = new AppLambda(stack, {lambdaName: 'tripGet', folder: 'trips', table}).lambda;
   appLambdas.tripUpdate = new AppLambda(stack, {lambdaName: 'tripUpdate', folder: 'trips', table, tableWriteRights: true}).lambda;
+  appLambdas.tripDelete = new AppLambda(stack, {lambdaName: 'tripDelete', folder: 'trips', table, tableWriteRights: true}).lambda;
 }
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {

@@ -130,7 +130,6 @@ export async function getAllTrips(lastEvaluatedKey?: Record<string, any>) {
 
 export async function updateTrip(trip: Trip) {
   const { id, name, departureTime, departureFrom, destination, description } = trip;
-  log(trip);
   const updateParams: UpdateCommandInput = {
       TableName: process.env.TABLE_NAME!,
       Key: {id},
@@ -162,8 +161,16 @@ export async function updateTrip(trip: Trip) {
       },
       ReturnValues: 'ALL_NEW'
   };
-  log(updateParams);
   const response = await docClient.send(new UpdateCommand(updateParams));
   if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
   return response.Attributes;
+}
+
+export async function deleteTrip(id: string) {
+  const deleteParams: DeleteCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id}
+  }
+  const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
 }

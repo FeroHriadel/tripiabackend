@@ -79,6 +79,7 @@ function addTripEndpoints(props: AddTripEndpointsProps) {
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripGet`], method: 'GET'});
   const pathParamsResource = resource.addResource('{id}');
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripUpdate'], method: 'PUT'});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripDelete'], method: 'DELETE', authorizer});
 }
 
 

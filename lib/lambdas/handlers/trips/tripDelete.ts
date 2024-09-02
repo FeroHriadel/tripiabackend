@@ -1,18 +1,18 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { res } from '../utils';
 import { ResponseError } from '../ResponseError';
-import { getCategoryById, deleteCategory } from "../dbOperations";
+import { getTripById, deleteCategory } from "../dbOperations";
 
 
 
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     try {
         const id = event.pathParameters?.id;
-        const categoryExists = await getCategoryById(id!);
-        if (!categoryExists) throw new ResponseError(404, 'Category with such id not found');
+        const tripExists = await getTripById(id!);
+        if (!tripExists) throw new ResponseError(404, 'Trip with such id not found');
         
-        const deleteCategoryResponse = await deleteCategory(id!);
-        if (!deleteCategoryResponse) throw new ResponseError(500, 'Deletion failed');
+        const deleteTripResponse = await deleteCategory(id!);
+        if (!deleteTripResponse) throw new ResponseError(500, 'Deletion failed');
         return res(200, {message: 'Deleted', id})
 
     } catch (error) {
