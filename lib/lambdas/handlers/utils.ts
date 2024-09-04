@@ -25,3 +25,18 @@ export function checkRequiredKeys(requiredKeys: string[], objectToCheck: {[key: 
     }
   });
 }
+
+export function isAdmin(event: APIGatewayProxyEvent) {
+  const isAdmin = event?.requestContext?.authorizer?.claims['cognito:groups'] === 'admin';
+  return isAdmin;
+}
+
+export function getUserEmail(event: APIGatewayProxyEvent) {
+  const userEmail = event?.requestContext?.authorizer?.claims['email'];
+  return userEmail;
+}
+
+export function adminOnly(event: APIGatewayProxyEvent) {
+  const isUserAdmin = isAdmin(event);
+  if (!isUserAdmin) throw new ResponseError(403, 'Admin access required');
+}

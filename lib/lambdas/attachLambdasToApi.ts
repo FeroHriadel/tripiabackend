@@ -62,10 +62,10 @@ function addFunctionToResource(props: {resource: Resource, lambdaIntegration: La
 function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'categories', api});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`categoryCreate`], method: 'POST'});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`categoryCreate`], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['categoryGet'], method: 'GET'});
   const pathParamsResource = resource.addResource('{id}');
-  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['categoryUpdate'], method: 'PUT'});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['categoryUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['categoryDelete'], method: 'DELETE', authorizer});
 }
 
@@ -75,10 +75,10 @@ function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
 function addTripEndpoints(props: AddTripEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'trips', api});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripCreate`], method: 'POST'});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripCreate`], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripGet`], method: 'GET'});
   const pathParamsResource = resource.addResource('{id}');
-  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripUpdate'], method: 'PUT'});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripDelete'], method: 'DELETE', authorizer});
 }
 

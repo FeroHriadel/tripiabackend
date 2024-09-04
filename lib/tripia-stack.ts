@@ -3,9 +3,10 @@ import { Construct } from 'constructs';
 import { AppLambdas, AppTables } from '../types';
 import { initTables } from './tables/initTables';
 import { initLambdas } from './lambdas/initLambdas';
-import { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { RestApi, CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 import { AppApiGateway } from './apiGateway/AppApiGateway';
 import { attachLambdasToApi } from './lambdas/attachLambdasToApi';
+import { AppAuthorizer } from './authorizer/AppAuthorizer';
 
 
 
@@ -13,6 +14,7 @@ export class TripiaStack extends cdk.Stack {
   private tables: AppTables;
   private lambdas: AppLambdas;
   private apiGateway: RestApi;
+  private authorizer: CognitoUserPoolsAuthorizer;
 
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -25,6 +27,7 @@ export class TripiaStack extends cdk.Stack {
     this.initializeTables();
     this.initializeLambdas();
     this.initApiGateway();
+    this.initAppAuthorizer();
     this.attachLambdas();
   }
 
@@ -45,7 +48,11 @@ export class TripiaStack extends cdk.Stack {
     this.apiGateway = new AppApiGateway(this).api;
   }
 
+  private initAppAuthorizer() {
+    this.authorizer = new AppAuthorizer(this, {api: this.apiGateway}).authorizer;
+  }
+
   private attachLambdas() {
-    attachLambdasToApi({api: this.apiGateway, lambdas: this.lambdas});
+    attachLambdasToApi({api: this.apiGateway, lambdas: this.lambdas, authorizer: this.authorizer});
   }
 }
