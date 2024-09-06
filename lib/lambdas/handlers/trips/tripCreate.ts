@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
-import { checkRequiredKeys, res } from '../utils';
+import { checkRequiredKeys, res, getUserEmail } from '../utils';
 import { Trip } from '../../../../types';
 import { saveTrip } from '../dbOperations';
 import { ResponseError } from '../ResponseError';
@@ -39,10 +39,11 @@ function createTripObject(props: CreateTripObjProps) {
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
   try {
     const body = JSON.parse(event.body!);
-    const requiredKeys = ['name', 'departureTime', 'departureFrom', 'destination', 'description', 'createdBy'];
+    const requiredKeys = ['name', 'departureTime', 'departureFrom', 'destination', 'description'];
     checkRequiredKeys(requiredKeys, body);
 
-    const { name, departureTime, departureFrom, destination, description, createdBy } = body;
+    const { name, departureTime, departureFrom, destination, description } = body;
+    const createdBy = getUserEmail(event);
     const tripToSave = createTripObject({name, departureTime, departureFrom, destination, description, createdBy});
     const saveTripResponse = await saveTrip(tripToSave);
     if (!saveTripResponse) throw new ResponseError(500, 'Trip was not saved.');

@@ -115,7 +115,7 @@ export async function getAllTrips(lastEvaluatedKey?: Record<string, any>) {
       ExpressionAttributeNames: {'#type': 'type'},
       //@ts-ignore
       ExpressionAttributeValues: {':type': '#TRIP'}, //TS wants: {':type': {S: '#TRIP'}} but the request breaks then
-      ScanIndexForward: true,
+      ScanIndexForward: false,
       Limit: pageSize
   };
   if (lastEvaluatedKey) queryParams.ExclusiveStartKey = lastEvaluatedKey; //use the LastEvaluatedKey from the previous query
