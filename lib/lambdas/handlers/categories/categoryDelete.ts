@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { res } from '../utils';
+import { res, adminOnly } from '../utils';
 import { ResponseError } from '../ResponseError';
 import { getCategoryById, deleteCategory } from "../dbOperations";
 
@@ -7,6 +7,7 @@ import { getCategoryById, deleteCategory } from "../dbOperations";
 
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     try {
+        adminOnly(event);
         const id = event.pathParameters?.id;
         const categoryExists = await getCategoryById(id!);
         if (!categoryExists) throw new ResponseError(404, 'Category with such id not found');

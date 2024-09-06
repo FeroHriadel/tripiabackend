@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
-import { res, log, } from '../utils';
+import { res, adminOnly } from '../utils';
 import { ErrorResponse } from 'aws-cdk-lib/aws-cloudfront';
 import { Category } from '../../../../types';
 import { getCategoryByName, saveCategory } from '../dbOperations';
@@ -23,6 +23,7 @@ function createCategoryObject(name: string) {
 
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
   try {
+    adminOnly(event);
     const body = JSON.parse(event.body!);
     if (!body.name) throw new ResponseError(400, 'Category must have a name');
 
