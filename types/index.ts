@@ -30,10 +30,12 @@ export interface Category {
 export interface Trip {
   id: string;
   name: string;
+  name_lower?: string; //so we can search case insensitive
   departureTime: string;
   departureFrom: string;
   destination: string;
   description: string;
+  description_lower?: string; //so we can search case insensitive
   createdBy: string;
   createdAt: string;
   updatedAt: string;

@@ -3,11 +3,12 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 
 
 
-/***********************************************************************
+/*******************************************************************************************
  * Trips retrieval: 
- *    1) search trips by postedBy 
- *    2) all trips can be retrieved sorted by updatedAt
-***********************************************************************/
+ *    1) all trips can be retrieved sorted by updatedAt
+ *    2) search trips by createdBy
+ *    3) search trips by keyword: either trip.name or trip.description contain the keyword
+*******************************************************************************************/
 
 
 
@@ -47,7 +48,7 @@ export class TripsTable {
       //All trips will have an attribute `type: #TRIP`.
       //When making a query to get all trips sorted by name we specify an equality condition.
       //The equality condition will be: `:trip = '#TRIP'` (which all trips have).
-      //This will return all trips ordered by `updatedAt` (`ScanIndexForward: true` in a query will do that).
+      //This will return all trips ordered by `updatedAt` (`ScanIndexForward: false` in a query will do that).
     this.table.addGlobalSecondaryIndex({
       indexName: 'dateSort', //composite key: has PK and SK
       partitionKey: {name: 'type', type: AttributeType.STRING},

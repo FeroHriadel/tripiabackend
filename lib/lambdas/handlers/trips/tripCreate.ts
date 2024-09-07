@@ -22,10 +22,12 @@ function createTripObject(props: CreateTripObjProps) {
   const trip: Trip = {
     id: v4(),
     name,
+    name_lower: name.toLowerCase(),
     departureTime,
     departureFrom,
     destination,
     description,
+    description_lower: description.toLowerCase(),
     createdBy,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

@@ -11,7 +11,6 @@ dotenv.config();
 
 const client = new DynamoDB({region: process.env.REGION});
 const docClient = DynamoDBDocumentClient.from(client);
-const pageSize = 3;
 
 
 
@@ -107,7 +106,8 @@ export async function getTripById(id: string) {
   return response.Item;
 }
 
-export async function getAllTrips(lastEvaluatedKey?: Record<string, any>) {
+export async function getAllTrips(props: {lastEvaluatedKey?: Record<string, any>, pageSize: number}) {
+  const { lastEvaluatedKey, pageSize } = props;
   const queryParams: QueryCommandInput = {
       TableName: process.env.TABLE_NAME!,
       IndexName: 'dateSort',

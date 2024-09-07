@@ -17,7 +17,8 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             JSON.parse(decodeURIComponent(event.queryStringParameters.lastEvaluatedKey))
             : 
             undefined;
-            const allTrips = await getAllTrips(lastEvaluatedKey);
+            const pageSize = event.queryStringParameters?.pageSize ? parseInt(event.queryStringParameters.pageSize) : 3;
+            const allTrips = await getAllTrips({lastEvaluatedKey, pageSize});
             return res(200, allTrips);
         } 
 
