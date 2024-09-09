@@ -1,5 +1,5 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { Category, Trip } from "../../../types";
 import { ResponseError } from './ResponseError';
@@ -124,6 +124,25 @@ export async function getAllTrips(props: {lastEvaluatedKey?: Record<string, any>
   return {
     items: response.Items,
     lastEvaluatedKey: response.LastEvaluatedKey,  //include LastEvaluatedKey in the response
+  };
+}
+
+export async function getTripsBySearchword(searchword: string) { //must be a scan :( bc Query does not support `contains`
+  const scanParams: ScanCommandInput = {
+    TableName: process.env.TABLE_NAME!,
+    FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword)",
+    ExpressionAttributeNames: {
+      "#name_lower": "name_lower",
+      "#description_lower": "description_lower",
+    },
+    ExpressionAttributeValues: {
+      ":searchword": searchword.toLowerCase(),
+    },
+  };
+  const response = await docClient.send(new ScanCommand(scanParams));
+  return {
+    items: response.Items,
+    lastEvaluatedKey: response.LastEvaluatedKey,
   };
 }
 

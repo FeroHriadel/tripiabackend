@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { res } from '../utils';
 import { ResponseError } from '../ResponseError';
-import { getTripById, getAllTrips} from '../dbOperations';
+import { getTripById, getAllTrips, getTripsBySearchword} from '../dbOperations';
 
 
 
@@ -11,6 +11,10 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             const id = event.queryStringParameters.id;
             const trip = await getTripById(id);
             return res(200, trip);
+        } else if (event.queryStringParameters?.searchword) {
+            const searchword = event.queryStringParameters.searchword;
+            const trips = await getTripsBySearchword(searchword);
+            return res(200, trips);
         } else {
             const lastEvaluatedKey = event.queryStringParameters?.lastEvaluatedKey 
             ? 
