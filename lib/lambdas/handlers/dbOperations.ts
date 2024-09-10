@@ -127,7 +127,7 @@ export async function getAllTrips(props: {lastEvaluatedKey?: Record<string, any>
   };
 }
 
-export async function getTripsBySearchword(searchword: string) { //must be a scan :( bc Query does not support `contains`
+export async function getTripsBySearchword(props: {searchword: string, pageSize?: number}) { //must be a scan :( bc Query does not support `contains`
   const scanParams: ScanCommandInput = {
     TableName: process.env.TABLE_NAME!,
     FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword)",
@@ -136,8 +136,9 @@ export async function getTripsBySearchword(searchword: string) { //must be a sca
       "#description_lower": "description_lower",
     },
     ExpressionAttributeValues: {
-      ":searchword": searchword.toLowerCase(),
+      ":searchword": props.searchword.toLowerCase(),
     },
+    Limit: props.pageSize
   };
   const response = await docClient.send(new ScanCommand(scanParams));
   return {
