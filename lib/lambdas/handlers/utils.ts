@@ -40,3 +40,12 @@ export function adminOnly(event: APIGatewayProxyEvent) {
   const isUserAdmin = isAdmin(event);
   if (!isUserAdmin) throw new ResponseError(403, 'Admin access required');
 }
+
+export function getLastEvaluatedKeyFromUri(event: APIGatewayProxyEvent) {
+  const lastEvaluatedKey = event.queryStringParameters?.lastEvaluatedKey 
+  ? 
+  JSON.parse(decodeURIComponent(event.queryStringParameters.lastEvaluatedKey))
+  : 
+  undefined;
+  return lastEvaluatedKey;
+}
