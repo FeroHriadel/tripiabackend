@@ -12,6 +12,7 @@ export interface AppLambdas {
   tripGet?: NodejsFunction;
   tripUpdate?: NodejsFunction;
   tripDelete?: NodejsFunction;
+  cognitoPostSignup?: NodejsFunction;
 }
 
 export interface AppTables {

@@ -49,7 +49,10 @@ export class TripiaStack extends cdk.Stack {
   }
 
   private initAppAuthorizer() {
-    this.authorizer = new AppAuthorizer(this, {api: this.apiGateway}).authorizer;
+    this.authorizer = new AppAuthorizer(this, {
+      api: this.apiGateway, 
+      postConfirmationLambda: this.lambdas.cognitoPostSignup!
+    }).authorizer;
   }
 
   private attachLambdas() {

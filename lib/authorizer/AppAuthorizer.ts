@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { CfnOutput, Duration, RemovalPolicy } from "aws-cdk-lib";
 import { CognitoUserPoolsAuthorizer, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { UserPool, UserPoolClient, CfnUserPoolGroup, CfnUserPool } from "aws-cdk-lib/aws-cognito";
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -21,21 +22,33 @@ export class AppAuthorizer {
     private api: RestApi;
     private userPool: UserPool;
     private userPoolClient: UserPoolClient;
+    private postConfirmLambda: NodejsFunction;
     public authorizer: CognitoUserPoolsAuthorizer;
 
 
-    constructor(stack: cdk.Stack, props: {api: RestApi}) {
+    constructor(stack: cdk.Stack, props: {api: RestApi, postConfirmationLambda: NodejsFunction}) {
       this.stack = stack;
       this.api = props.api;
+      this.postConfirmLambda = props.postConfirmationLambda;
       this.initialize();
     }
 
 
     private initialize() {
+      this.addLambdaRights();
       this.createUserPool();
       this.addUserPoolClient();
       this.createAuthorizer();
       this.createAdminGroup();
+    }
+
+    private addLambdaRights() {
+      this.postConfirmLambda.addToRolePolicy(
+        new cdk.aws_iam.PolicyStatement({
+          actions: ['cognito-idp:AdminUpdateUserAttributes'],
+          resources: ['*'],
+        })
+      );
     }
 
     private createUserPool() {
@@ -47,6 +60,7 @@ export class AppAuthorizer {
         passwordPolicy: {minLength: 6, requireLowercase: false, requireDigits: false, requireSymbols: false, requireUppercase: false},
         standardAttributes: { nickname: {required: false, mutable: true}, profilePicture: {required: false, mutable: true}},
         //customAttributes: { 'myappid': new cognito.StringAttribute({ minLen: 5, maxLen: 15, mutable: false }) }
+        lambdaTriggers: { postConfirmation: this.postConfirmLambda }
       });
       new CfnOutput(this.stack, 'USER POOL ID', {value: this.userPool.userPoolId}); //log userPoolId so you don't have to go to console for it
     }
@@ -83,5 +97,4 @@ export class AppAuthorizer {
             userPoolId: this.userPool.userPoolId,
         });
     }
-
 }

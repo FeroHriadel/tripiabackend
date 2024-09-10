@@ -4,7 +4,6 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Category, Trip } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
-import { log } from "./utils";
 dotenv.config();
 
 

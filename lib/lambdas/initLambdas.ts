@@ -42,9 +42,14 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
   appLambdas.tripDelete = new AppLambda(stack, {lambdaName: 'tripDelete', folder: 'trips', table, tableWriteRights: true}).lambda;
 }
 
+function createNonApiLambdas(stack: Stack) {
+  appLambdas.cognitoPostSignup = new AppLambda(stack, {lambdaName: 'cognitoPostSignup', folder: 'cognito'}).lambda;
+}
+
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables } = props;
   initCategoryLambdas(stack, {table: tables.categoriesTable});
   initTripLambdas(stack, {table: tables.tripsTable});
+  createNonApiLambdas(stack);
   return appLambdas;
 }
