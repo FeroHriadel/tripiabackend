@@ -16,6 +16,8 @@ interface AppLambdaProps {
   folder: string;
   table?: Table;
   tableWriteRights?: boolean;
+  secondaryTable?: Table;
+  secondaryTableWriteRights?: boolean;
 }
 
 
@@ -26,16 +28,20 @@ export class AppLambda {
   private folder: string;
   private table: Table;
   private tableWriteRights: boolean;
+  private secondaryTable?: Table;
+  private secondaryTableWriteRights?: boolean;
   public lambda: NodejsFunction;
 
 
   public constructor(stack: Stack, props: AppLambdaProps) {
-    const { lambdaName, folder, table, tableWriteRights } = props;
+    const { lambdaName, folder, table, tableWriteRights, secondaryTable, secondaryTableWriteRights } = props;
     this.stack = stack;
     this.lambdaName = lambdaName;
     this.folder = folder;
     if (table) this.table = table;
     if (tableWriteRights) this.tableWriteRights = tableWriteRights;
+    if (secondaryTable) this.secondaryTable = secondaryTable;
+    if (secondaryTableWriteRights) this.secondaryTableWriteRights = secondaryTableWriteRights;
     this.initialize();
   }
 
@@ -53,6 +59,7 @@ export class AppLambda {
       environment: {
         REGION: process.env.REGION || 'region not defined!',
         TABLE_NAME: this.table?.tableName || 'no table defined!',
+        SECONDARY_TABLE_NAME: this.secondaryTable?.tableName || 'no secondary table defined!'
       }
     })
   }
@@ -60,5 +67,7 @@ export class AppLambda {
   private addTableRights() {
     if (this.tableWriteRights) this.table.grantReadWriteData(this.lambda);
     else this.table.grantReadData(this.lambda);
+    if (this.secondaryTableWriteRights) this.secondaryTable?.grantReadWriteData(this.lambda);
+    else this.secondaryTable?.grantReadData(this.lambda);
   }
 }

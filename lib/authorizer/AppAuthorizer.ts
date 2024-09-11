@@ -58,9 +58,10 @@ export class AppAuthorizer {
         signInAliases: {email: true},
         removalPolicy: RemovalPolicy.DESTROY,
         passwordPolicy: {minLength: 6, requireLowercase: false, requireDigits: false, requireSymbols: false, requireUppercase: false},
-        standardAttributes: { nickname: {required: false, mutable: true}, profilePicture: {required: false, mutable: true}},
-        //customAttributes: { 'myappid': new cognito.StringAttribute({ minLen: 5, maxLen: 15, mutable: false }) }
         lambdaTriggers: { postConfirmation: this.postConfirmLambda }
+        //standardAttributes: { nickname: {required: false, mutable: true}, profilePicture: {required: false, mutable: true}},
+        //customAttributes: { 'myappid': new cognito.StringAttribute({ minLen: 5, maxLen: 15, mutable: false }) }
+        /* don't recommend using standardAttributes or customAttributes - lookups are inefficient and expensive. Use cognito hook lambdas instead (like this app does) */
       });
       new CfnOutput(this.stack, 'USER POOL ID', {value: this.userPool.userPoolId}); //log userPoolId so you don't have to go to console for it
     }

@@ -13,12 +13,18 @@ interface InitCategoriesLambdasProps {
 }
 
 interface InitTripLambdasProps {
-  table: Table;
+  tripsTable: Table;
+  usersTable: Table;
+}
+
+interface InitNonApiLambdasProps {
+  tables: AppTables;
 }
 
 interface InitLambdasProps {
   tables: AppTables;
 }
+
 
 
 
@@ -35,21 +41,22 @@ function initCategoryLambdas(stack: Stack, props: InitCategoriesLambdasProps) {
 }
 
 function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
-  const { table } = props;
-  appLambdas.tripCreate = new AppLambda(stack, {lambdaName: 'tripCreate', folder: 'trips', table, tableWriteRights: true}).lambda;
-  appLambdas.tripGet = new AppLambda(stack, {lambdaName: 'tripGet', folder: 'trips', table}).lambda;
-  appLambdas.tripUpdate = new AppLambda(stack, {lambdaName: 'tripUpdate', folder: 'trips', table, tableWriteRights: true}).lambda;
-  appLambdas.tripDelete = new AppLambda(stack, {lambdaName: 'tripDelete', folder: 'trips', table, tableWriteRights: true}).lambda;
+  const { tripsTable, usersTable } = props;
+  appLambdas.tripCreate = new AppLambda(stack, {lambdaName: 'tripCreate', folder: 'trips', table: tripsTable, tableWriteRights: true, secondaryTable: usersTable}).lambda;
+  appLambdas.tripGet = new AppLambda(stack, {lambdaName: 'tripGet', folder: 'trips', table: tripsTable}).lambda;
+  appLambdas.tripUpdate = new AppLambda(stack, {lambdaName: 'tripUpdate', folder: 'trips', table: tripsTable, tableWriteRights: true}).lambda;
+  appLambdas.tripDelete = new AppLambda(stack, {lambdaName: 'tripDelete', folder: 'trips', table: tripsTable, tableWriteRights: true}).lambda;
 }
 
-function createNonApiLambdas(stack: Stack) {
-  appLambdas.cognitoPostSignup = new AppLambda(stack, {lambdaName: 'cognitoPostSignup', folder: 'cognito'}).lambda;
+function createNonApiLambdas(stack: Stack, props: InitNonApiLambdasProps) {
+  const { tables } = props;  const { usersTable } = tables;
+  appLambdas.cognitoPostSignup = new AppLambda(stack, {lambdaName: 'cognitoPostSignup', folder: 'cognito',  table: usersTable, tableWriteRights: true}).lambda;
 }
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables } = props;
   initCategoryLambdas(stack, {table: tables.categoriesTable});
-  initTripLambdas(stack, {table: tables.tripsTable});
-  createNonApiLambdas(stack);
+  initTripLambdas(stack, {tripsTable: tables.tripsTable, usersTable: tables.usersTable});
+  createNonApiLambdas(stack, props);
   return appLambdas;
 }

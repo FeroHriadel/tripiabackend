@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
 import { checkRequiredKeys, res, getUserEmail } from '../utils';
 import { Trip } from '../../../../types';
-import { saveTrip } from '../dbOperations';
+import { getUserByEmail, saveTrip } from '../dbOperations';
 import { ResponseError } from '../ResponseError';
 
 
@@ -14,11 +14,12 @@ interface CreateTripObjProps {
   destination: string;
   description: string;
   createdBy: string;
+  nickname: string;
 }
 
 
 function createTripObject(props: CreateTripObjProps) {
-  const { name, departureTime, departureFrom, destination, description, createdBy } = props;
+  const { name, departureTime, departureFrom, destination, description, createdBy, nickname } = props;
   const trip: Trip = {
     id: v4(),
     name,
@@ -29,6 +30,8 @@ function createTripObject(props: CreateTripObjProps) {
     description,
     description_lower: description.toLowerCase(),
     createdBy,
+    nickname,
+    nickname_lower: nickname.toLowerCase(), //so we can search trips by user nickname case-insensitive & partial-string. What a wonderful database dynamoDB is...
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     type: '#TRIP',
@@ -46,7 +49,9 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
     const { name, departureTime, departureFrom, destination, description } = body;
     const createdBy = getUserEmail(event);
-    const tripToSave = createTripObject({name, departureTime, departureFrom, destination, description, createdBy});
+    const user = await getUserByEmail({email: createdBy, table: 'secondary'});
+    const nickname = user.nickname;
+    const tripToSave = createTripObject({name, departureTime, departureFrom, destination, description, createdBy, nickname});
     const saveTripResponse = await saveTrip(tripToSave);
     if (!saveTripResponse) throw new ResponseError(500, 'Trip was not saved.');
     

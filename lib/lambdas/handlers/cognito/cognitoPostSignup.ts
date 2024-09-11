@@ -1,37 +1,34 @@
 import { PostConfirmationConfirmSignUpTriggerEvent } from 'aws-lambda';
-import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { res } from '../utils';
+import { res, log } from '../utils';
 import { ResponseError } from '../ResponseError';
-import * as dotenv from 'dotenv';
-import { log } from 'console';
-dotenv.config();
+import { User } from '../../../../types';
+import { saveUser } from '../dbOperations';
 
 
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.REGION });
-
+function createUserObj(props: {email: string, nickname: string}): User {
+  const { email, nickname } = props;
+  return {
+    email: email.toLowerCase(),
+    nickname,
+    nickname_lower: nickname.toLowerCase(),
+    profilePicture: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    type: '#USER'
+  }
+}
 
 
 export async function handler(event: PostConfirmationConfirmSignUpTriggerEvent) {
     try {
-      log('Post Confirmation Hook runs...')
       log('Event: ', event);
-      const userPoolId = event.userPoolId;
-      const userName = event.userName;
       const email = event.request.userAttributes.email;
       const nickname = email.split('@')[0];
-      const command = new AdminUpdateUserAttributesCommand({
-        UserPoolId: userPoolId,
-        Username: userName,
-        UserAttributes: [
-          {
-            Name: 'nickname',
-            Value: nickname
-          }
-        ]
-      });
-      await cognitoClient.send(command);
-      return event; //must return event or aws-amplify on the FE errors out
+      const user = createUserObj({email, nickname});
+      const saveUserResponse = await saveUser(user);
+      log('Save user response: ', saveUserResponse);
+      return event; //must return event or aws-amplify errors out on the FE
     } catch (error) {
         if (error instanceof Error || error instanceof ResponseError) {
             return res(
@@ -39,6 +36,5 @@ export async function handler(event: PostConfirmationConfirmSignUpTriggerEvent) 
                 {error: error.message || 'Something went wrong'}
             );
         }
-        return event;
     }
 }

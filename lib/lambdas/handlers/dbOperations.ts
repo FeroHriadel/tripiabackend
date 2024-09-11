@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Category, Trip } from "../../../types";
+import { Category, Trip, User } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -85,6 +85,30 @@ export async function deleteCategory(id: string) {
 
 
 
+//USERS
+export async function saveUser(user: User) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Item: marshall(user),
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
+  return response;  
+}
+
+export async function getUserByEmail(props: {email: string; table?: 'primary' | 'secondary'}) {
+  let { email, table } = props;
+  if (!table) table = 'primary';
+  const getParams = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+      Key: {email},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'User not found');
+  return response.Item;
+}
+
+
+
 //TRIPS
 export async function saveTrip(trip: Trip) {
   const putParams: PutItemCommandInput = {
@@ -129,10 +153,11 @@ export async function getAllTrips(props: {lastEvaluatedKey?: Record<string, any>
 export async function getTripsBySearchword(props: {searchword: string, pageSize?: number, lastEvaluatedKey?: Record<string, any>}) { //must be a scan :( bc Query does not support `contains`
   const scanParams: ScanCommandInput = {
     TableName: process.env.TABLE_NAME!,
-    FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword)",
+    FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword) OR contains(#nickname_lower, :searchword)",
     ExpressionAttributeNames: {
       "#name_lower": "name_lower",
       "#description_lower": "description_lower",
+      "#nickname_lower": "nickname_lower",	
     },
     ExpressionAttributeValues: {
       ":searchword": props.searchword.toLowerCase(),
