@@ -2,6 +2,7 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { TripiaStack } from '../lib/tripia-stack';
+import { appName } from '../utils/resourceValues';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,7 +14,6 @@ dotenv.config();
 
 
 
-const appName = 'tripia' + '-' + process.env.STAGE;
 const region = process.env.REGION;
 const accountId = process.env.ACCOUNT_ID;
 

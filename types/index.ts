@@ -1,5 +1,7 @@
 import { Table } from "aws-cdk-lib/aws-dynamodb"
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 
 
 
@@ -12,6 +14,8 @@ export interface AppLambdas {
   tripGet?: NodejsFunction;
   tripUpdate?: NodejsFunction;
   tripDelete?: NodejsFunction;
+  getImageUploadLink?: NodejsFunction;
+  userUpdate?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
 }
 
@@ -19,6 +23,14 @@ export interface AppTables {
   categoriesTable: Table;
   tripsTable: Table;
   usersTable: Table;
+}
+
+export interface AppBuckets {
+  imagesBucket: Bucket;
+}
+
+export interface AppPolicyStatemens {
+  imagesBucketAccessStatement: PolicyStatement;
 }
 
 export interface Category {

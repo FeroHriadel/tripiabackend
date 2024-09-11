@@ -107,6 +107,21 @@ export async function getUserByEmail(props: {email: string; table?: 'primary' | 
   return response.Item;
 }
 
+export async function updateUser(props: {nickname: string; profilePicture: string; email: string;}) {
+  const { nickname, profilePicture, email } = props;
+  const updateParams: UpdateCommandInput = {
+    TableName: process.env.TABLE_NAME!,
+    Key: {email},
+    UpdateExpression: 'set #nickname = :nickname, #nickname_lower = :nickname_lower, #profilePicture = :profilePicture, #updatedAt = :updatedAt',
+    ExpressionAttributeNames: {'#nickname': 'nickname', '#nickname_lower': 'nickname_lower', '#profilePicture': 'profilePicture', '#updatedAt': 'updatedAt'},
+    ExpressionAttributeValues: {':nickname': nickname, ':nickname_lower': nickname.toLowerCase(), ':profilePicture': profilePicture, ':updatedAt': new Date().toISOString()},
+    ReturnValues: 'ALL_NEW'
+  };
+  const response = await docClient.send(new UpdateCommand(updateParams));
+  if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
+  return response.Attributes;
+}
+
 
 
 //TRIPS
