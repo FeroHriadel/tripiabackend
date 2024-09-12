@@ -107,14 +107,14 @@ export async function getUserByEmail(props: {email: string; table?: 'primary' | 
   return response.Item;
 }
 
-export async function updateUser(props: {nickname: string; profilePicture: string; email: string;}) {
-  const { nickname, profilePicture, email } = props;
+export async function updateUser(props: {nickname: string; profilePicture: string; email: string, about: string;}) {
+  const { nickname, profilePicture, email, about } = props;
   const updateParams: UpdateCommandInput = {
     TableName: process.env.TABLE_NAME!,
     Key: {email},
-    UpdateExpression: 'set #nickname = :nickname, #nickname_lower = :nickname_lower, #profilePicture = :profilePicture, #updatedAt = :updatedAt',
-    ExpressionAttributeNames: {'#nickname': 'nickname', '#nickname_lower': 'nickname_lower', '#profilePicture': 'profilePicture', '#updatedAt': 'updatedAt'},
-    ExpressionAttributeValues: {':nickname': nickname, ':nickname_lower': nickname.toLowerCase(), ':profilePicture': profilePicture, ':updatedAt': new Date().toISOString()},
+    UpdateExpression: 'set #nickname = :nickname, #nickname_lower = :nickname_lower, #profilePicture = :profilePicture, #about = :about, #updatedAt = :updatedAt',
+    ExpressionAttributeNames: {'#nickname': 'nickname', '#nickname_lower': 'nickname_lower', '#profilePicture': 'profilePicture', '#about': 'about', '#updatedAt': 'updatedAt'},
+    ExpressionAttributeValues: {':nickname': nickname, ':nickname_lower': nickname.toLowerCase(), ':profilePicture': profilePicture, ':about': about,':updatedAt': new Date().toISOString()},
     ReturnValues: 'ALL_NEW'
   };
   const response = await docClient.send(new UpdateCommand(updateParams));

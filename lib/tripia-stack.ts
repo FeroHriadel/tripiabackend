@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables } from '../types';
+import { AppBuckets, AppEventBuses, AppLambdas, AppPolicyStatemens, AppTables } from '../types';
 import { initTables } from './tables/initTables';
 import { initLambdas } from './lambdas/initLambdas';
 import { RestApi, CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
@@ -9,6 +9,7 @@ import { attachLambdasToApi } from './lambdas/attachLambdasToApi';
 import { AppAuthorizer } from './authorizer/AppAuthorizer';
 import { ImagesBucket } from './buckets/ImagesBucket';
 import { initializePolicyStatements } from './policyStatements/initializePolicyStatements';
+import { initializeEventBuses } from './eventBuses/initializeEventBuses';
 
 
 
@@ -17,6 +18,7 @@ export class TripiaStack extends cdk.Stack {
   private buckets: AppBuckets;
   private policyStatements: AppPolicyStatemens;
   private lambdas: AppLambdas;
+  private eventBuses: AppEventBuses;
   private apiGateway: RestApi;
   private authorizer: CognitoUserPoolsAuthorizer;
 
@@ -32,6 +34,7 @@ export class TripiaStack extends cdk.Stack {
     this.initializeBuckets();
     this.initPolicyStatements();
     this.initializeLambdas();
+    this.initAppEventBuses();
     this.initApiGateway();
     this.initAppAuthorizer();
     this.attachLambdas();
@@ -61,6 +64,13 @@ export class TripiaStack extends cdk.Stack {
       buckets: this.buckets,
       policyStatements: this.policyStatements
     });
+  }
+
+  private initAppEventBuses() {
+    this.eventBuses = initializeEventBuses(this, {
+      deleteImagesEventBusPublisherFns: [this.lambdas.userUpdate!],
+      deleteImagesEventBusTargetFn: this.lambdas.deleteImages!
+    })
   }
 
   private initApiGateway() {

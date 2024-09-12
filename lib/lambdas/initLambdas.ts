@@ -3,7 +3,7 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
 import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { imagesBucketAccessTag } from "../../utils/resourceValues";
+import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -36,8 +36,6 @@ interface InitLambdasProps {
   buckets: AppBuckets;
   policyStatements: AppPolicyStatemens;
 }
-
-
 
 
 
@@ -99,6 +97,22 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
   }).lambda;
 }
 
+function initImagesLambdas(stack: Stack, props: createBucketLambdasProps) {
+  const { buckets, policyStatements } = props; 
+  appLambdas.getImageUploadLink = new AppLambda(stack, {
+    lambdaName: 'getImageUploadLink',
+    folder: 'images',
+    bucket: buckets.imagesBucket,
+    policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement}
+  }).lambda;
+  appLambdas.deleteImages = new AppLambda(stack, {
+    lambdaName: 'deleteImages',
+    folder: 'images',
+    bucket: buckets.imagesBucket,
+    policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement}
+  }).lambda;
+}
+
 function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
   const { usersTable } = props;
   appLambdas.userUpdate = new AppLambda(stack, {
@@ -106,27 +120,19 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
     folder: 'users', 
     table: usersTable, 
     tableWriteRights: true, 
-    tags: {imagesBucketAccessTag: imagesBucketAccessTag}
+    tags: {imagesBucketAccessTag: imagesBucketAccessTag},
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
   }).lambda;
-}
-
-function initBucketLambdas(stack: Stack, props: createBucketLambdasProps) {
-  const { buckets, policyStatements } = props; 
-  appLambdas.getImageUploadLink = new AppLambda(stack, {
-    lambdaName: 'getImageUploadLink',
-    folder: 'buckets',
-    bucket: buckets.imagesBucket,
-    policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement}
-  }).lambda;
-}
-
-function initNonApiLambdas(stack: Stack, props: InitNonApiLambdasProps) {
-  const { tables } = props;  const { usersTable } = tables;
   appLambdas.cognitoPostSignup = new AppLambda(stack, {
     lambdaName: 'cognitoPostSignup', 
-    folder: 'cognito',  
+    folder: 'users',  
     table: usersTable, 
-    tableWriteRights: true
+    tableWriteRights: true,
   }).lambda;
 }
 
@@ -134,8 +140,7 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables, buckets, policyStatements } = props;
   initCategoryLambdas(stack, {table: tables.categoriesTable});
   initTripLambdas(stack, {tripsTable: tables.tripsTable, usersTable: tables.usersTable});
+  initImagesLambdas(stack, {buckets, policyStatements});
   initUserLambdas(stack, {usersTable: tables.usersTable});
-  initBucketLambdas(stack, {buckets, policyStatements});
-  initNonApiLambdas(stack, props);
   return appLambdas;
 }

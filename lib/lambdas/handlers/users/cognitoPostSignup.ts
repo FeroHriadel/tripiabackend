@@ -13,6 +13,7 @@ function createUserObj(props: {email: string, nickname: string}): User {
     nickname,
     nickname_lower: nickname.toLowerCase(),
     profilePicture: '',
+    about: '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     type: '#USER'

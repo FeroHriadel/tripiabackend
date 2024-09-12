@@ -29,7 +29,7 @@ interface AddBucketsEndpointsProps {
   authorizer: CognitoUserPoolsAuthorizer;
 }
 
-interface AddUserEndpointsProps {
+interface AddUsersEndpointsProps {
   api: RestApi;
   lambdaIntegrations: {[key: string]: LambdaIntegration};
   authorizer: CognitoUserPoolsAuthorizer;
@@ -37,7 +37,7 @@ interface AddUserEndpointsProps {
 
 
 
-//CATEGORIES
+//CATEGORIES ENDPOINTS
 function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'categories', api});
@@ -48,7 +48,7 @@ function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['categoryDelete'], method: 'DELETE', authorizer});
 }
 
-//TRIPS
+//TRIPS ENDPOINTS
 function addTripEndpoints(props: AddTripEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'trips', api});
@@ -59,26 +59,26 @@ function addTripEndpoints(props: AddTripEndpointsProps) {
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripDelete'], method: 'DELETE', authorizer});
 }
 
-//BUCKETS
-function addBucketsEndpoints(props: AddBucketsEndpointsProps) {
+//IMAGES ENDPOINTS
+function addImagesEndpoints(props: AddBucketsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const getImageUploadLinkResource = createResource({pathName: 'imageuploadlink', api});
-  addFunctionToResource({resource: getImageUploadLinkResource, lambdaIntegration: lambdaIntegrations['getImageUploadLink'], method: 'POST'}); //!add authorizer!
+  addFunctionToResource({resource: getImageUploadLinkResource, lambdaIntegration: lambdaIntegrations['getImageUploadLink'], method: 'POST', authorizer});
 }
 
-//USERS
-function addUsersEndpoints(props: AddTripEndpointsProps) {
+//USERS ENDPOINTS
+function addUsersEndpoints(props: AddUsersEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'users', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userUpdate'], method: 'PUT', authorizer});
 }
 
-//MAIN FUNCTION CALLS ALL FUNCTIONS ABOVE
+//MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
 export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   const { api, lambdas, authorizer } = props;
   const lambdaIntegrations = createLambdaIntegrations(lambdas);
   addCategoryEndpoints({api, lambdaIntegrations, authorizer});
+  addImagesEndpoints({api, lambdaIntegrations, authorizer});
   addTripEndpoints({api, lambdaIntegrations, authorizer});
-  addBucketsEndpoints({api, lambdaIntegrations, authorizer});
   addUsersEndpoints({api, lambdaIntegrations, authorizer});
 }

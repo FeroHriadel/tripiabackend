@@ -49,3 +49,16 @@ export function getLastEvaluatedKeyFromUri(event: APIGatewayProxyEvent) {
   undefined;
   return lastEvaluatedKey;
 }
+
+export function getImageKey(url: string) {
+  const key = url.split('.com/')[1];
+  return key;
+}
+
+export function structureImagesToDeleteForEventBus(imagesArr: string[]) {
+  const images: {[key: string]: any} = {};
+  imagesArr.forEach((image, index) => {
+      images[`image${index + 1}`] = getImageKey(image);
+  });
+  return images; // {image1: '2024-06VFPrasnica.jpg65817.png', image2: '2024-06VFPrasnica2.jpg47097.png', ...}
+}

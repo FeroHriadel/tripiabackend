@@ -1,3 +1,11 @@
+/*******************************************************************************************************
+    Initiating some resources (e.g.: EventBus) leads to circular dependency: 
+      - can't create lambdas before you have EventBus (need to know EventBus source, detail, name...)
+      - can't create EventBus before you have lambdas (need to know publisher and target lambdas...)
+    That is why we define those necessary values here and access them elsewhere.
+    Some other values are here for grouping reasons, not circular dependency issues.
+********************************************************************************************************/
+
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -6,3 +14,8 @@ dotenv.config();
 export const appName = 'tripia' + '-' + process.env.STAGE;
 
 export const imagesBucketAccessTag = 'imagesBucketAccessTag';
+
+export const deleteImagesBusSource = [appName + 'delete.images.bus.source'];
+export const deleteImagesBusDetailType = [appName + 'DeleteImagesDetailType'];
+export const deleteImagesEventBusName = appName + 'DeleteImagesBus';
+export const deleteImagesEventBusRuleName = appName + 'DeleteImagesBusRule';

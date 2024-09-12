@@ -1,4 +1,5 @@
 import { Table } from "aws-cdk-lib/aws-dynamodb"
+import { EventBus } from "aws-cdk-lib/aws-events";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Bucket } from "aws-cdk-lib/aws-s3";
@@ -15,6 +16,7 @@ export interface AppLambdas {
   tripUpdate?: NodejsFunction;
   tripDelete?: NodejsFunction;
   getImageUploadLink?: NodejsFunction;
+  deleteImages?: NodejsFunction;
   userUpdate?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
 }
@@ -31,6 +33,17 @@ export interface AppBuckets {
 
 export interface AppPolicyStatemens {
   imagesBucketAccessStatement: PolicyStatement;
+}
+
+export interface EventBusData {
+  source: string[];
+  detailType: string[];
+  busName: string;
+  ruleName: string;
+}
+
+export interface AppEventBuses {
+  deleteImagesEventBus: EventBus;
 }
 
 export interface Category {
@@ -63,6 +76,7 @@ export interface User {
   nickname: string;
   nickname_lower?: string;
   profilePicture: string;
+  about: string;
   createdAt: string;
   updatedAt: string;
   type: '#USER';

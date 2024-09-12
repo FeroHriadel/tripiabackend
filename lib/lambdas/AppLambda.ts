@@ -3,8 +3,8 @@ import { Stack, Tags } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { join } from "path";
 import { Bucket } from "aws-cdk-lib/aws-s3";
-import { AppPolicyStatemens } from "../../types";
-import { Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { AppPolicyStatemens, EventBusData } from "../../types";
+import { Policy, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 
 
@@ -23,7 +23,8 @@ interface AppLambdaProps {
   secondaryTableWriteRights?: boolean;
   tags?: {[key: string]: string};
   bucket?: Bucket;
-  policyStatements?: {[key: string]: PolicyStatement}
+  policyStatements?: {[key: string]: PolicyStatement};
+  eventBusData?: EventBusData;
 }
 
 
@@ -39,11 +40,12 @@ export class AppLambda {
   private tags: {[key: string]: string};
   private bucket: Bucket;
   private policyStatements: {[key: string]: PolicyStatement};
+  private eventBusData: EventBusData;
   public lambda: NodejsFunction;
 
 
   public constructor(stack: Stack, props: AppLambdaProps) {
-    const { lambdaName, folder, table, tableWriteRights, secondaryTable, secondaryTableWriteRights, tags, bucket, policyStatements } = props;
+    const { lambdaName, folder, table, tableWriteRights, secondaryTable, secondaryTableWriteRights, tags, bucket, policyStatements, eventBusData } = props;
     this.stack = stack;
     this.lambdaName = lambdaName;
     this.folder = folder;
@@ -54,6 +56,7 @@ export class AppLambda {
     this.tags = tags || {};
     if (bucket) this.bucket = bucket;
     if (policyStatements) this.policyStatements = policyStatements;
+    if (eventBusData) this.eventBusData = eventBusData;
     this.initialize();
   }
 
@@ -63,6 +66,7 @@ export class AppLambda {
     if (this.table) this.addTablesRights();
     if (this.policyStatements) this.addRoles();
     this.addTags();
+    if (this.eventBusData) this.addInvokeEventBusPermission();
   }
 
   private createLambda() {
@@ -74,7 +78,10 @@ export class AppLambda {
         REGION: process.env.REGION || 'region not defined!',
         TABLE_NAME: this.table?.tableName || 'no table defined!',
         SECONDARY_TABLE_NAME: this.secondaryTable?.tableName || 'no secondary table defined!',
-        BUCKET_NAME: this.bucket?.bucketName || 'no bucket defined!'
+        BUCKET_NAME: this.bucket?.bucketName || 'no bucket defined!',
+        EVENT_BUS_SOURCE: this.eventBusData?.source[0] || 'no event bus source defined!',
+        EVENT_BUS_DETAIL_TYPE: this.eventBusData?.detailType[0] || 'no event bus detail type defined!',
+        EVENT_BUS_NAME: this.eventBusData?.busName || 'no event bus name defined!',
       }
     })
   }
@@ -97,6 +104,17 @@ export class AppLambda {
   private addTags() {
     Object.keys(this.tags).forEach((key) => {
       Tags.of(this.lambda).add(this.tags[key], this.tags[key]);
+    });
+  }
+
+  private addInvokeEventBusPermission() {
+    this.lambda.addPermission(`${this.lambdaName}AllowEventBusInvoke`, {
+      principal: new ServicePrincipal('events.amazonaws.com'),
+      sourceArn: this.stack.formatArn({
+        service: 'events',
+        resource: 'rule',
+        resourceName: `${this.eventBusData.ruleName}`
+      })
     });
   }
 }
