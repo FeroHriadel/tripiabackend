@@ -10,7 +10,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
         const body = JSON.parse(event.body!);
         const email = body.email;
         if (!email) throw new ResponseError(400, 'email is required');
-        const user = await getUserByEmail(email);
+        const user = await getUserByEmail({email});
         return res(200, user);
 
     } catch (error) {
