@@ -115,6 +115,11 @@ function initImagesLambdas(stack: Stack, props: createBucketLambdasProps) {
 
 function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
   const { usersTable } = props;
+  appLambdas.userGet = new AppLambda(stack, {
+    lambdaName: 'userGet',
+    folder: 'users',
+    table: usersTable
+  }).lambda;
   appLambdas.userUpdate = new AppLambda(stack, {
     lambdaName: 'userUpdate', 
     folder: 'users', 
@@ -134,6 +139,7 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
     table: usersTable, 
     tableWriteRights: true,
   }).lambda;
+
 }
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {

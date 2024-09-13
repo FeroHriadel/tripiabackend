@@ -70,6 +70,7 @@ function addImagesEndpoints(props: AddBucketsEndpointsProps) {
 function addUsersEndpoints(props: AddUsersEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'users', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userGet'], method: 'POST'}); //must be POST bc GEt doesn't support req.body
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userUpdate'], method: 'PUT', authorizer});
 }
 

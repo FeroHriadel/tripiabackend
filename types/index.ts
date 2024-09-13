@@ -18,6 +18,7 @@ export interface AppLambdas {
   getImageUploadLink?: NodejsFunction;
   deleteImages?: NodejsFunction;
   userUpdate?: NodejsFunction;
+  userGet?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
 }
 
