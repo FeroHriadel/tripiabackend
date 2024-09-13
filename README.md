@@ -9,6 +9,7 @@
 - dynamoDB
 - lambdas
 - apiGateway
+- EventBus
 
 ## SOFTWARE VERSIONS
 Developed with:
@@ -37,23 +38,23 @@ ACCOUNT_ID = 222677608122
 1) declares variables that hold app resources (tables, buckets, lambdas...)
 2) initializes app resources and saves the return values in the variables decalred in 1) for easy access
 3) attaches lambdas to api once all resources have been created
-- the `/lib` folder also holds the code for the creation of all app resources: `/lip/lambdas`, `/lib/buckets`, `lib/apiGateway`...
+- the `/lib` folder also holds the code for the creation of all app resources: `/lib/lambdas`, `/lib/buckets`, `lib/apiGateway`...
 
 ### LAMBDAS
 - are the most complex resource in the app. Once you crack that the rest is a breeze.
 - `/lib/lambdas/AppLambda.ts` is used to initiate all app lambdas. Just declare `new AppLambda(stack, props)`.
-- AppLambda props can take 2 dynamoDB tables, eventBus, tags, s3bucket, policy statements and attaches it all to the lambda so you don't have to do it manually. Example:
+- AppLambda props can take 2 dynamoDB tables, eventBus, tags, s3bucket, policy statements... and attaches it all to the lambda so you don't have to do it manually. Example:
 ```
 const myLambda = new AppLambda(stack, {
     lambdaName: 'getImageUploadLink', //handler file name
     folder: 'images', //folder name in /lib/lambdas/handlers
-    bucket: buckets.imagesBucket, //will put BUCKET_NAME in lambda's environment varaibles
+    bucket: buckets.imagesBucket, //will put BUCKET_NAME in lambda's environment variables
     policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement} //will attach the policy statement to lambda
   }).lambda;
 ```
-- `/lib/lambdas/initLambdas.ts` contains the `initLambdas()` function that calls all the other partial helper functions above. It initializes all app lambdas..
+- `/lib/lambdas/initLambdas.ts` contains the `initLambdas()` function that calls all the other partial helper functions above it. It initializes all app lambdas..
 - If you need to add a new lambda, `/lib/lambdas/initLambdas.ts` is the file to do it in. It does not attach the lambda to api, though! Read on for more on that...
-- `/lib/lambdas/attachLambdasToApi.ts` is called as the last thing in the stack. It attaches all the lambdas to the api. It contains the `attachLambdasToApi()` that calls all the other partial helper functions above.
+- `/lib/lambdas/attachLambdasToApi.ts` is called as the last thing in the stack. It attaches all the lambdas to the api. It contains the `attachLambdasToApi()` that calls all the other partial helper functions above it.
 - If you need to attach a lambda to api `/lib/lambdas/attachLambdasToApi.ts` is a file to do it in. If you want the lambda to be protected by app authorizer, add the `authorizer` prop:
 ```
 function addUsersEndpoints(props: AddUsersEndpointsProps) {
@@ -67,4 +68,13 @@ function addUsersEndpoints(props: AddUsersEndpointsProps) {
 - the `handlers` folder is further organized topically: `categories`, `users`, `trips`...
 - naming convention is: `tripCreate`, `tripGet`, `tripUpdate`, `tripDelete` - handlers that don't fall into the CRUD routine have no naming convention
 - all dynamoDB operations are in `/lib/lambdas/handlers/dbOperations` so the lambda handler code doesn't get too long and unreadable.
-- lambda handler interaction with s3, EventBus, .... is handled directlty in the lambda.
+- lambda handler interaction with s3, EventBus, .... is handled directly in the lambda code (no helper file for those interactions).
+
+## ISSUES
+- there's a UsersTable. It seems redundant as the app uses Cognito where all the data of UsersTable could be stored as well. However, querying Cognito users is rigid, expensive and inflexible. No partial string searches are possible. That's why I decided to have the UsersTable where partial string searches are a bit better.
+- uses dynamoDB because it works so well with lambdas. There's a price to pay, though: 
+- dynamoDB sucks for highly changeable data and their sorting, filtering, table joins, etc. That's why:
+- trips have a hardcoded user's nickname (for search reasons). I decided not to update the nickname when user changes their nickname. This way it's theoretically possible for the user to post different trips under a different nickname. I decided it's not a bug but a feature: My ancient friends call me 'Fedo' but my recent friends call me 'Fero'. I prefer 'Fero' but there's no way I can get my old friends to call me that. In a similar vein - trips created under one nickname will always have that nickname, even if the nickname has changed ¯\_(ツ)_/¯
+- because the app can search trips by partial string match (contains condition) trips search scans :( the TripsTable. Since old trips get deleted on a regular basis I assumed the scan won't get too expensive.
+
+
