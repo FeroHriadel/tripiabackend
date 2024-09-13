@@ -109,7 +109,8 @@ function initImagesLambdas(stack: Stack, props: createBucketLambdasProps) {
     lambdaName: 'deleteImages',
     folder: 'images',
     bucket: buckets.imagesBucket,
-    policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement}
+    policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement},
+    tags: {imagesBucketAccessTag: imagesBucketAccessTag}
   }).lambda;
 }
 

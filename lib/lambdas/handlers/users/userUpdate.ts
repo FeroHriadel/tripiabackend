@@ -49,7 +49,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
       if (!userExists) throw new ResponseError(404, 'User not found');
 
       if ((userExists.profilePicture !== '') && (profilePicture !== userExists.profilePicture)) {
-        const deleteImageParams = getPutEventParams([profilePicture]);
+        const deleteImageParams = getPutEventParams([userExists.profilePicture]);
         const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(deleteImageParams));
         log('deleteImagesEventBus response: ', eventBusRes);
       }
