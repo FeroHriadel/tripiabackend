@@ -37,7 +37,13 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
       const requestUserEmail = getUserEmail(event);
       const isUserAdmin = isAdmin(event);
-      if (!isUserAdmin || requestUserEmail !== email) throw new ResponseError(403, 'Unauthorized');
+
+      console.log('requestUserEmail, isUserAdmin, email');
+      console.log(requestUserEmail, isUserAdmin, email);
+
+      if (!isUserAdmin) {
+        if (requestUserEmail !== email) throw new ResponseError(403, 'Unauthorized');
+      }
 
       const userExists = await getUserByEmail({email});
       if (!userExists) throw new ResponseError(404, 'User not found');
