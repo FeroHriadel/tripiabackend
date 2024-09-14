@@ -1,5 +1,5 @@
 import { Bucket, HttpMethods, BucketPolicy, ObjectOwnership } from "aws-cdk-lib/aws-s3";
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
+import { RemovalPolicy, Stack, CfnOutput } from "aws-cdk-lib";
 import { PolicyStatement, Effect, AnyPrincipal, ArnPrincipal } from "aws-cdk-lib/aws-iam";
 import { imagesBucketAccessTag } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
@@ -47,6 +47,7 @@ export class ImagesBucket {
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true
         });
+        new CfnOutput(this.stack, `IMAGES BUCKET DOMAIN NAME`, {value: this.bucket.bucketDomainName});
     }
 
     private addPutObjectStatement() {

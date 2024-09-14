@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { getLastEvaluatedKeyFromUri, res } from '../utils';
+import { getCreatedByFromUri, getLastEvaluatedKeyFromUri, res } from '../utils';
 import { ResponseError } from '../ResponseError';
-import { getTripById, getAllTrips, getTripsBySearchword} from '../dbOperations';
+import { getTripById, getAllTrips, getTripsBySearchword, getTripsByCreatedBy} from '../dbOperations';
 
 
 
@@ -21,6 +21,10 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             const lastEvaluatedKey = getLastEvaluatedKeyFromUri(event);
             const trips = await getTripsBySearchword({searchword, pageSize, lastEvaluatedKey});
             trips.items?.sort((a, b) => { return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime() });
+            return res(200, trips);
+        } else if (event.queryStringParameters?.createdBy) {
+            const createdBy = getCreatedByFromUri(event);
+            const trips = await getTripsByCreatedBy(createdBy);
             return res(200, trips);
         } else {
             const lastEvaluatedKey = getLastEvaluatedKeyFromUri(event);

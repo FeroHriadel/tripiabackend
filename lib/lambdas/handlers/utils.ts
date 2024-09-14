@@ -50,6 +50,15 @@ export function getLastEvaluatedKeyFromUri(event: APIGatewayProxyEvent) {
   return lastEvaluatedKey;
 }
 
+export function getCreatedByFromUri(event: APIGatewayProxyEvent) {
+  const createdBy = event.queryStringParameters?.createdBy 
+  ? 
+  JSON.parse(decodeURIComponent(event.queryStringParameters.createdBy))
+  : 
+  undefined;
+  return createdBy;
+}
+
 export function getImageKey(url: string) {
   const key = url.split('.com/')[1];
   return key;

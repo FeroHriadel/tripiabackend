@@ -3,12 +3,12 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 
 
 
-/*******************************************************************************************
+/**********************************************************************************************
  * Trips retrieval: 
  *    1) all trips can be retrieved sorted by updatedAt
- *    2) search trips by createdBy
- *    3) search trips by keyword: either trip.name or trip.description contain the keyword
-*******************************************************************************************/
+ *    2) search trips by keyword: trip.name/description/nickname... contain the keyword
+ *    3) search trips by createdBy
+**********************************************************************************************/
 
 
 
@@ -38,12 +38,6 @@ export class TripsTable {
   }
 
   private addSecondaryIndexes() {
-    //so we can search category by name:
-    this.table.addGlobalSecondaryIndex({
-      indexName: 'postedBy',
-      partitionKey: {name: 'postedBy', type: AttributeType.STRING},
-    })
-
     //so we can get trips ordered by name
       //All trips will have an attribute `type: #TRIP`.
       //When making a query to get all trips sorted by name we specify an equality condition.
@@ -54,5 +48,12 @@ export class TripsTable {
       partitionKey: {name: 'type', type: AttributeType.STRING},
       sortKey: {name: 'updatedAt', type: AttributeType.STRING},
     });
+
+    //so we can search trip by createdBy (and with `ScanIndexForward: false` get from freshest to oldest)
+    this.table.addGlobalSecondaryIndex({
+      indexName: 'createdBy',
+      partitionKey: {name: 'createdBy', type: AttributeType.STRING},
+      sortKey: {name: 'updatedAt', type: AttributeType.STRING},
+    })
   }
 }

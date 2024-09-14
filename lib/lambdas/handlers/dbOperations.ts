@@ -187,6 +187,21 @@ export async function getTripsBySearchword(props: {searchword: string, pageSize?
   };
 }
 
+export async function getTripsByCreatedBy(email: string) {
+  const queryParams: QueryCommandInput = {
+    TableName: process.env.TABLE_NAME!,
+    IndexName: 'createdBy',
+    KeyConditionExpression: '#createdBy = :createdBy',
+    ExpressionAttributeNames: {'#createdBy': 'createdBy'},
+    //@ts-ignore
+    ExpressionAttributeValues: {':createdBy': email}, //TS wants: {':type': {S: '#TRIP'}} but the request breaks then
+    ScanIndexForward: false,
+  };
+  const response = await docClient.send(new QueryCommand(queryParams));
+  if (!response?.Items) throw new ResponseError(500, 'DB query failed');
+  return response.Items;
+}
+
 
 export async function updateTrip(trip: Trip) {
   const { id, name, departureTime, departureFrom, destination, description } = trip;
