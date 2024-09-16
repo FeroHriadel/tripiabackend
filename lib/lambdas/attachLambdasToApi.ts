@@ -1,7 +1,6 @@
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { MethodOptions, RestApi, Cors, LambdaIntegration, Resource, CognitoUserPoolsAuthorizer, AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
+import { RestApi, LambdaIntegration, CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 import { AppLambdas } from '../../types';
-import { createLambdaIntegration, createLambdaIntegrations, createResource, addFunctionToResource } from './utils';
+import { createLambdaIntegrations, createResource, addFunctionToResource } from './utils';
 
 
 
@@ -30,6 +29,12 @@ interface AddBucketsEndpointsProps {
 }
 
 interface AddUsersEndpointsProps {
+  api: RestApi;
+  lambdaIntegrations: {[key: string]: LambdaIntegration};
+  authorizer: CognitoUserPoolsAuthorizer;
+}
+
+interface AddAuthEndpointsProps {
   api: RestApi;
   lambdaIntegrations: {[key: string]: LambdaIntegration};
   authorizer: CognitoUserPoolsAuthorizer;
@@ -74,6 +79,14 @@ function addUsersEndpoints(props: AddUsersEndpointsProps) {
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userUpdate'], method: 'PUT', authorizer});
 }
 
+//FAVORITE TRIPS ENDPOINTS
+function addFavoriteTripsEndpoints(props: AddUsersEndpointsProps) {
+  const { api, lambdaIntegrations, authorizer } = props;
+  const resource = createResource({pathName: 'favoritetrips', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsGet'], method: 'GET', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsSave'], method: 'POST', authorizer});
+}
+
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
 export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   const { api, lambdas, authorizer } = props;
@@ -82,4 +95,5 @@ export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   addImagesEndpoints({api, lambdaIntegrations, authorizer});
   addTripEndpoints({api, lambdaIntegrations, authorizer});
   addUsersEndpoints({api, lambdaIntegrations, authorizer});
+  addFavoriteTripsEndpoints({api, lambdaIntegrations, authorizer});
 }

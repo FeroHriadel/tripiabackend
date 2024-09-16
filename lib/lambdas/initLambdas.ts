@@ -22,10 +22,6 @@ interface InitUserLambdasProps {
   usersTable: Table;
 }
 
-interface InitNonApiLambdasProps {
-  tables: AppTables;
-}
-
 interface createBucketLambdasProps {
   buckets: AppBuckets;
   policyStatements: AppPolicyStatemens;
@@ -35,6 +31,10 @@ interface InitLambdasProps {
   tables: AppTables;
   buckets: AppBuckets;
   policyStatements: AppPolicyStatemens;
+}
+
+interface InitFavoriteTripsLambdasProps {
+  favoriteTripsTable: Table;
 }
 
 
@@ -140,8 +140,24 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
     table: usersTable, 
     tableWriteRights: true,
   }).lambda;
-
 }
+
+function initFavoriteTripsLambdas(stack: Stack, props: InitFavoriteTripsLambdasProps) {
+  const { favoriteTripsTable } = props;
+  appLambdas.favoriteTripsGet = new AppLambda(stack, {
+    lambdaName: 'favoriteTripsGet',
+    folder: 'favoriteTrips',
+    table: favoriteTripsTable
+  }).lambda;
+  appLambdas.favoriteTripsSave = new AppLambda(stack, {
+    lambdaName: 'favoriteTripsSave',
+    folder: 'favoriteTrips',
+    table: favoriteTripsTable,
+    tableWriteRights: true
+  }).lambda;	
+}
+
+
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables, buckets, policyStatements } = props;
@@ -149,5 +165,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initTripLambdas(stack, {tripsTable: tables.tripsTable, usersTable: tables.usersTable});
   initImagesLambdas(stack, {buckets, policyStatements});
   initUserLambdas(stack, {usersTable: tables.usersTable});
+  initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   return appLambdas;
 }

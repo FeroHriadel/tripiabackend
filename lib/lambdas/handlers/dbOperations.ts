@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Category, Trip, User } from "../../../types";
+import { Category, FavoriteTrips, Trip, User } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -247,5 +247,31 @@ export async function deleteTrip(id: string) {
       Key: {id}
   }
   const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
+}
+
+
+
+//FAVORITE TRIPS
+export async function getFavoriteTripsByEmail(email: string) {
+  try {
+    const getParams = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {email}
+    };
+    const response = await docClient.send(new GetCommand(getParams));
+    return response.Item || [];
+  } catch (error) {
+    console.error("Error getting favorite trips:", error);
+    throw new Error("Failed to get favorite trips");
+  }
+}
+
+export async function saveFavoriteTrips(favoriteTrips: FavoriteTrips) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!, 
+      Item: marshall(favoriteTrips)
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
   return response;
 }

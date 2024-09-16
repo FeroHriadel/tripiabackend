@@ -59,7 +59,8 @@ export class TripiaStack extends cdk.Stack {
       tables: {
         categoriesTable: this.tables.categoriesTable,
         tripsTable: this.tables.tripsTable,
-        usersTable: this.tables.usersTable
+        usersTable: this.tables.usersTable,
+        favoriteTripsTable: this.tables.favoriteTripsTable,
       },
       buckets: this.buckets,
       policyStatements: this.policyStatements

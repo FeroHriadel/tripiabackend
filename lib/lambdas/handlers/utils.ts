@@ -50,13 +50,12 @@ export function getLastEvaluatedKeyFromUri(event: APIGatewayProxyEvent) {
   return lastEvaluatedKey;
 }
 
-export function getCreatedByFromUri(event: APIGatewayProxyEvent) {
-  const createdBy = event.queryStringParameters?.createdBy 
-  ? 
-  JSON.parse(decodeURIComponent(event.queryStringParameters.createdBy))
-  : 
-  undefined;
-  return createdBy;
+export function getEncodedStringFromUri(props: { event: APIGatewayProxyEvent, queryStringKey: string }): string | undefined {
+  const { event, queryStringKey } = props;
+  const queryStringValue = event.queryStringParameters?.[queryStringKey] 
+    ? decodeURIComponent(event.queryStringParameters[queryStringKey]) 
+    : undefined;
+  return queryStringValue;
 }
 
 export function getImageKey(url: string) {

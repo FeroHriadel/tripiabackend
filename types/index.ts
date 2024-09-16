@@ -20,12 +20,15 @@ export interface AppLambdas {
   userUpdate?: NodejsFunction;
   userGet?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
+  favoriteTripsGet?: NodejsFunction;
+  favoriteTripsSave?: NodejsFunction;
 }
 
 export interface AppTables {
   categoriesTable: Table;
   tripsTable: Table;
   usersTable: Table;
+  favoriteTripsTable: Table;
 }
 
 export interface AppBuckets {
@@ -81,4 +84,11 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   type: '#USER';
+}
+
+export interface FavoriteTrips {
+  email: string;
+  tripIds: string[];
+  updatedAt: string;
+  type: '#FAVORITE_TRIPS';
 }
