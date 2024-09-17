@@ -1,6 +1,6 @@
-import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
-import { marshall } from "@aws-sdk/util-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
@@ -248,6 +248,20 @@ export async function deleteTrip(id: string) {
   }
   const response = await docClient.send(new DeleteCommand(deleteParams));
   return response;
+}
+
+export async function batchGettrips(ids: string[]) {
+  if (ids.length === 0) return [];
+  const batchGetParams: BatchGetItemCommandInput = {
+    RequestItems: {
+      [process.env.TABLE_NAME!]: {
+        Keys: ids.map(id => marshall({ id }))
+      }
+    }
+  };
+  const response = await docClient.send(new BatchGetItemCommand(batchGetParams));
+  if (!response.Responses) throw new Error('Trips not found');
+  return response.Responses[process.env.TABLE_NAME!].map(item => unmarshall(item));
 }
 
 

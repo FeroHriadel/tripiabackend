@@ -56,12 +56,14 @@ function addCategoryEndpoints(props: AddCategoryEndpointsProps) {
 //TRIPS ENDPOINTS
 function addTripEndpoints(props: AddTripEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
-  const resource = createResource({pathName: 'trips', api});
-  const pathParamsResource = resource.addResource('{id}');
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripCreate`], method: 'POST', authorizer});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations[`tripGet`], method: 'GET'});
+  const tripsResource = createResource({pathName: 'trips', api});
+  const tripsBatchResource = tripsResource.addResource('batch');
+  const pathParamsResource = tripsResource.addResource('{id}');
+  addFunctionToResource({resource: tripsResource, lambdaIntegration: lambdaIntegrations[`tripCreate`], method: 'POST', authorizer});
+  addFunctionToResource({resource: tripsResource, lambdaIntegration: lambdaIntegrations[`tripGet`], method: 'GET'});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['tripDelete'], method: 'DELETE', authorizer});
+  addFunctionToResource({resource: tripsBatchResource, lambdaIntegration: lambdaIntegrations['tripBatchGet'], method: 'POST'});
 }
 
 //IMAGES ENDPOINTS
@@ -75,7 +77,7 @@ function addImagesEndpoints(props: AddBucketsEndpointsProps) {
 function addUsersEndpoints(props: AddUsersEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'users', api});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userGet'], method: 'POST'}); //must be POST bc GEt doesn't support req.body
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userGet'], method: 'POST'}); //must be POST bc GET doesn't support req.body
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userUpdate'], method: 'PUT', authorizer});
 }
 

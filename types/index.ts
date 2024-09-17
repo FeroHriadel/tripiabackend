@@ -15,6 +15,7 @@ export interface AppLambdas {
   tripGet?: NodejsFunction;
   tripUpdate?: NodejsFunction;
   tripDelete?: NodejsFunction;
+  tripBatchGet?: NodejsFunction;
   getImageUploadLink?: NodejsFunction;
   deleteImages?: NodejsFunction;
   userUpdate?: NodejsFunction;

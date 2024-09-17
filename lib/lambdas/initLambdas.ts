@@ -95,6 +95,11 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
     table: tripsTable, 
     tableWriteRights: true
   }).lambda;
+  appLambdas.tripBatchGet = new AppLambda(stack, {
+    lambdaName: 'tripBatchGet',
+    folder: 'trips',
+    table: tripsTable
+  }).lambda;
 }
 
 function initImagesLambdas(stack: Stack, props: createBucketLambdasProps) {
