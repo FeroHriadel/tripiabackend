@@ -250,7 +250,7 @@ export async function deleteTrip(id: string) {
   return response;
 }
 
-export async function batchGettrips(ids: string[]) {
+export async function batchGetTrips(ids: string[]) {
   if (ids.length === 0) return [];
   const batchGetParams: BatchGetItemCommandInput = {
     RequestItems: {

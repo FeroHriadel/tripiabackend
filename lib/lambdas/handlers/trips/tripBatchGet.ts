@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
 import { checkRequiredKeys, res } from '../utils';
-import { batchGettrips } from '../dbOperations';
+import { batchGetTrips } from '../dbOperations';
 import { ResponseError } from '../ResponseError';
 
 
@@ -13,8 +13,8 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
     checkRequiredKeys(requiredKeys, body);
 
     const { tripIds } = body;
-    const trips = await batchGettrips(tripIds);
-    return res(200, {trips});
+    const trips = await batchGetTrips(tripIds);
+    return res(200, trips);
 
   } catch (error) {
       if (error instanceof Error || error instanceof ResponseError) {
