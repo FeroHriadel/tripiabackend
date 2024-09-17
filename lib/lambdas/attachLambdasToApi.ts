@@ -84,7 +84,7 @@ function addFavoriteTripsEndpoints(props: AddUsersEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'favoritetrips', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsGet'], method: 'GET', authorizer});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsSave'], method: 'POST', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsSet'], method: 'POST', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

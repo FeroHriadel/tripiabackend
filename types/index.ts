@@ -21,7 +21,7 @@ export interface AppLambdas {
   userGet?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
   favoriteTripsGet?: NodejsFunction;
-  favoriteTripsSave?: NodejsFunction;
+  favoriteTripsSet?: NodejsFunction;
 }
 
 export interface AppTables {

@@ -149,8 +149,8 @@ function initFavoriteTripsLambdas(stack: Stack, props: InitFavoriteTripsLambdasP
     folder: 'favoriteTrips',
     table: favoriteTripsTable
   }).lambda;
-  appLambdas.favoriteTripsSave = new AppLambda(stack, {
-    lambdaName: 'favoriteTripsSave',
+  appLambdas.favoriteTripsSet = new AppLambda(stack, {
+    lambdaName: 'favoriteTripsSet',
     folder: 'favoriteTrips',
     table: favoriteTripsTable,
     tableWriteRights: true
