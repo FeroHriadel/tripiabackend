@@ -168,11 +168,12 @@ export async function getAllTrips(props: {lastEvaluatedKey?: Record<string, any>
 export async function getTripsBySearchword(props: {searchword: string, pageSize?: number, lastEvaluatedKey?: Record<string, any>}) { //must be a scan :( bc Query does not support `contains`
   const scanParams: ScanCommandInput = {
     TableName: process.env.TABLE_NAME!,
-    FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword) OR contains(#nickname_lower, :searchword)",
+    FilterExpression: "contains(#name_lower, :searchword) OR contains(#description_lower, :searchword) OR contains(#nickname_lower, :searchword) OR contains(#keyWords, :searchword)",
     ExpressionAttributeNames: {
       "#name_lower": "name_lower",
       "#description_lower": "description_lower",
-      "#nickname_lower": "nickname_lower",	
+      "#nickname_lower": "nickname_lower",
+      "#keyWords": "keyWords"	
     },
     ExpressionAttributeValues: {
       ":searchword": props.searchword.toLowerCase(),
@@ -204,7 +205,7 @@ export async function getTripsByCreatedBy(email: string) {
 
 
 export async function updateTrip(trip: Trip) {
-  const { id, name, departureTime, departureFrom, destination, description } = trip;
+  const { id, name, departureTime, departureFrom, destination, description, category, keyWords, image, requirements, meetingLat, meetingLng, destinationLat, destinationLng } = trip;
   const updateParams: UpdateCommandInput = {
       TableName: process.env.TABLE_NAME!,
       Key: {id},
@@ -215,7 +216,15 @@ export async function updateTrip(trip: Trip) {
           #departureFrom = :departureFrom,
           #destination = :destination,
           #description = :description,
-          #updatedAt = :updatedAt
+          #updatedAt = :updatedAt,
+          category = :category,
+          keyWords = :keyWords,
+          image = :image,
+          requirements = :requirements,
+          meetingLat = :meetingLat,
+          meetingLng = :meetingLng,
+          destinationLat = :destinationLat,
+          destinationLng = :destinationLng
       `,
       ExpressionAttributeNames: {
         '#name': 'name',
@@ -223,8 +232,15 @@ export async function updateTrip(trip: Trip) {
         '#departureFrom': 'departureFrom',
         '#destination': 'destination',
         '#description': 'description',
-        '#updatedAt': 'updatedAt'
-
+        '#updatedAt': 'updatedAt',
+        '#category': 'category',
+        '#keyWords': 'keyWords',
+        '#image': 'image',
+        '#requirements': 'requirements',
+        '#meetingLat': 'meetingLat',
+        '#meetingLng': 'meetingLng',
+        '#destinationLat': 'destinationLat',
+        '#destinationLng': 'destinationLng'
       },
       ExpressionAttributeValues: {
         ':name': name,
@@ -232,7 +248,15 @@ export async function updateTrip(trip: Trip) {
         ':departureFrom': departureFrom,
         ':destination': destination,
         ':description': description,
-        ':updatedAt': new Date().toISOString()
+        ':updatedAt': new Date().toISOString(),
+        ':category': category || '',
+        ':keyWords': keyWords?.toLowerCase() || '',
+        ':image': image,
+        ':requirements': requirements || '',
+        ':meetingLat': meetingLat,
+        ':meetingLng': meetingLng,
+        ':destinationLat': destinationLat,
+        ':destinationLng': destinationLng
       },
       ReturnValues: 'ALL_NEW'
   };

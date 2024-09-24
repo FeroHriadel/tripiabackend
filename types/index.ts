@@ -74,6 +74,14 @@ export interface Trip {
   createdAt: string;
   updatedAt: string;
   type: '#TRIP';
+  category?: string;
+  keyWords?: string;
+  image?: string;
+  requirements?: string;
+  meetingLat?: number | null | undefined;
+  meetingLng?: number | null | undefined;
+  destinationLat?: number | null | undefined;
+  destinationLng?: number | null | undefined;
 }
 
 export interface User {
