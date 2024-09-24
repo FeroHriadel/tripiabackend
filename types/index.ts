@@ -64,6 +64,7 @@ export interface Trip {
   name: string;
   name_lower?: string; //so we can search case insensitive
   departureTime: string;
+  departureDate: string;
   departureFrom: string;
   destination: string;
   description: string;
