@@ -69,7 +69,7 @@ export class TripiaStack extends cdk.Stack {
 
   private initAppEventBuses() {
     this.eventBuses = initializeEventBuses(this, {
-      deleteImagesEventBusPublisherFns: [this.lambdas.userUpdate!],
+      deleteImagesEventBusPublisherFns: [this.lambdas.userUpdate!, this.lambdas.tripDelete!, this.lambdas.tripUpdate!],
       deleteImagesEventBusTargetFn: this.lambdas.deleteImages!
     })
   }

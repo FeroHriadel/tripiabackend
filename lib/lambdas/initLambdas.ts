@@ -87,13 +87,25 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
     lambdaName: 'tripUpdate', 
     folder: 'trips', 
     table: tripsTable, 
-    tableWriteRights: true
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
   }).lambda;
   appLambdas.tripDelete = new AppLambda(stack, {
     lambdaName: 'tripDelete', 
     folder: 'trips', 
     table: tripsTable, 
-    tableWriteRights: true
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
   }).lambda;
   appLambdas.tripBatchGet = new AppLambda(stack, {
     lambdaName: 'tripBatchGet',
