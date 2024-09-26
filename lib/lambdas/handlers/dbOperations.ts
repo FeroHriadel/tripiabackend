@@ -207,59 +207,59 @@ export async function getTripsByCreatedBy(email: string) {
 export async function updateTrip(trip: Trip) {
   const { id, name, departureTime, departureFrom, destination, description, category, keyWords, image, requirements, meetingLat, meetingLng, destinationLat, destinationLng } = trip;
   const updateParams: UpdateCommandInput = {
-      TableName: process.env.TABLE_NAME!,
-      Key: {id},
-      UpdateExpression: `
-        set 
-          #name = :name,
-          #departureTime = :departureTime,
-          #departureFrom = :departureFrom,
-          #destination = :destination,
-          #description = :description,
-          #updatedAt = :updatedAt,
-          category = :category,
-          keyWords = :keyWords,
-          image = :image,
-          requirements = :requirements,
-          meetingLat = :meetingLat,
-          meetingLng = :meetingLng,
-          destinationLat = :destinationLat,
-          destinationLng = :destinationLng
-      `,
-      ExpressionAttributeNames: {
-        '#name': 'name',
-        '#departureTime': 'departureTime',
-        '#departureFrom': 'departureFrom',
-        '#destination': 'destination',
-        '#description': 'description',
-        '#updatedAt': 'updatedAt',
-        '#category': 'category',
-        '#keyWords': 'keyWords',
-        '#image': 'image',
-        '#requirements': 'requirements',
-        '#meetingLat': 'meetingLat',
-        '#meetingLng': 'meetingLng',
-        '#destinationLat': 'destinationLat',
-        '#destinationLng': 'destinationLng'
-      },
-      ExpressionAttributeValues: {
-        ':name': name,
-        ':departureTime': departureTime,
-        ':departureFrom': departureFrom,
-        ':destination': destination,
-        ':description': description,
-        ':updatedAt': new Date().toISOString(),
-        ':category': category || '',
-        ':keyWords': keyWords?.toLowerCase() || '',
-        ':image': image,
-        ':requirements': requirements || '',
-        ':meetingLat': meetingLat,
-        ':meetingLng': meetingLng,
-        ':destinationLat': destinationLat,
-        ':destinationLng': destinationLng
-      },
-      ReturnValues: 'ALL_NEW'
-  };
+    TableName: process.env.TABLE_NAME!,
+    Key: { id },
+    UpdateExpression: `
+      set 
+        #name = :name,
+        #departureTime = :departureTime,
+        #departureFrom = :departureFrom,
+        #destination = :destination,
+        #description = :description,
+        #updatedAt = :updatedAt,
+        #category = :category,
+        #keyWords = :keyWords,
+        #image = :image,
+        #requirements = :requirements,
+        #meetingLat = :meetingLat,
+        #meetingLng = :meetingLng,
+        #destinationLat = :destinationLat,
+        #destinationLng = :destinationLng
+    `,
+    ExpressionAttributeNames: {
+      '#name': 'name',
+      '#departureTime': 'departureTime',
+      '#departureFrom': 'departureFrom',
+      '#destination': 'destination',
+      '#description': 'description',
+      '#updatedAt': 'updatedAt',
+      '#category': 'category',
+      '#keyWords': 'keyWords',
+      '#image': 'image',
+      '#requirements': 'requirements',
+      '#meetingLat': 'meetingLat',
+      '#meetingLng': 'meetingLng',
+      '#destinationLat': 'destinationLat',
+      '#destinationLng': 'destinationLng'
+    },
+    ExpressionAttributeValues: {
+      ':name': name,
+      ':departureTime': departureTime,
+      ':departureFrom': departureFrom,
+      ':destination': destination,
+      ':description': description,
+      ':updatedAt': new Date().toISOString(),
+      ':category': category || '',
+      ':keyWords': keyWords?.toLowerCase() || '',
+      ':image': image,
+      ':requirements': requirements || '',
+      ':meetingLat': meetingLat,
+      ':meetingLng': meetingLng,
+      ':destinationLat': destinationLat,
+      ':destinationLng': destinationLng
+    },
+    ReturnValues: 'ALL_NEW'
+  };  
   const response = await docClient.send(new UpdateCommand(updateParams));
   if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
   return response.Attributes;

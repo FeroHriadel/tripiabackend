@@ -3,7 +3,7 @@ import { ResponseError } from '../ResponseError';
 import { res, checkRequiredKeys } from '../utils';
 import { getTripById, updateTrip } from "../dbOperations";
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
-import { structureImagesToDeleteForEventBus, log } from '../utils';
+import { structureImagesToDeleteForEventBus, log, isAdmin, getUserEmail } from '../utils';
 
 
 
@@ -38,6 +38,12 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
         const tripExists = await getTripById(id!);
         if (!tripExists) throw new ResponseError(404, 'Trip with such id not found');
+
+        const isUserAdmin = isAdmin(event);
+        if (!isUserAdmin) {
+            const requestUser = getUserEmail(event);
+            if (requestUser !== tripExists.createdBy) throw new ResponseError(403, 'Forbidden');
+        }
 
         if ((tripExists.image !== '') && (tripExists.image !== body.image)) {
             const deleteImageParams = getPutEventParams([tripExists.image]);
