@@ -339,7 +339,7 @@ export async function getCommentById(id: string, table?: 'primary' | 'secondary'
 }
 
 export async function getComments(props: {lastEvaluatedKey?: Record<string, any>, pageSize: number, tripId: string}) {
-  const { lastEvaluatedKey, pageSize } = props;
+  const { lastEvaluatedKey, pageSize, tripId } = props;
   const queryParams: QueryCommandInput = {
       TableName: process.env.TABLE_NAME!,
       IndexName: 'trip',
