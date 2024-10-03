@@ -34,7 +34,7 @@ interface AddUsersEndpointsProps {
   authorizer: CognitoUserPoolsAuthorizer;
 }
 
-interface AddAuthEndpointsProps {
+interface AddCommentsEndpointsProps {
   api: RestApi;
   lambdaIntegrations: {[key: string]: LambdaIntegration};
   authorizer: CognitoUserPoolsAuthorizer;
@@ -87,6 +87,13 @@ function addFavoriteTripsEndpoints(props: AddUsersEndpointsProps) {
   const resource = createResource({pathName: 'favoritetrips', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsGet'], method: 'GET', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['favoriteTripsSet'], method: 'POST', authorizer});
+}
+
+//COMMENTS ENDPOINTS
+function addCommentsEndpoints(props: AddCommentsEndpointsProps) {
+  const { api, lambdaIntegrations, authorizer } = props;
+  const resource = createResource({pathName: 'comments', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['commentCreate'], method: 'POST', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

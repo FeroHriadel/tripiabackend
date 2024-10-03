@@ -23,6 +23,7 @@ export interface AppLambdas {
   cognitoPostSignup?: NodejsFunction;
   favoriteTripsGet?: NodejsFunction;
   favoriteTripsSet?: NodejsFunction;
+  commentCreate?: NodejsFunction;
 }
 
 export interface AppTables {
@@ -30,6 +31,7 @@ export interface AppTables {
   tripsTable: Table;
   usersTable: Table;
   favoriteTripsTable: Table;
+  commentsTable: Table;
 }
 
 export interface AppBuckets {

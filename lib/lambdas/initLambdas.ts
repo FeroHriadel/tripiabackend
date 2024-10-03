@@ -37,6 +37,11 @@ interface InitFavoriteTripsLambdasProps {
   favoriteTripsTable: Table;
 }
 
+interface InitCommentsLambdasProps {
+  commentsTable: Table;
+  tripsTable: Table;
+}
+
 
 
 const appLambdas: AppLambdas = {}; //list of all lambdas after init
@@ -174,6 +179,17 @@ function initFavoriteTripsLambdas(stack: Stack, props: InitFavoriteTripsLambdasP
   }).lambda;	
 }
 
+function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
+  const { commentsTable, tripsTable } = props;
+  appLambdas.commentCreate = new AppLambda(stack, {
+    lambdaName: 'commentCreate',
+    folder: 'comments',
+    table: commentsTable,
+    secondaryTable: tripsTable,
+    tableWriteRights: true
+  }).lambda;
+}
+
 
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
@@ -183,5 +199,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initImagesLambdas(stack, {buckets, policyStatements});
   initUserLambdas(stack, {usersTable: tables.usersTable});
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
+  initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
   return appLambdas;
 }
