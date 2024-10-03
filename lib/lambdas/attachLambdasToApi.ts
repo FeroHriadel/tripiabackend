@@ -94,6 +94,7 @@ function addCommentsEndpoints(props: AddCommentsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'comments', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['commentCreate'], method: 'POST', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['commentGet'], method: 'GET'});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

@@ -188,6 +188,11 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
     secondaryTable: tripsTable,
     tableWriteRights: true
   }).lambda;
+  appLambdas.commentGet = new AppLambda(stack, {
+    lambdaName: 'commentGet',
+    folder: 'comments',
+    table: commentsTable
+  }).lambda;
 }
 
 

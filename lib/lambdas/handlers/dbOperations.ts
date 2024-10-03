@@ -326,3 +326,35 @@ export async function saveComment(comment: Comment) {
   const response = await docClient.send(new PutItemCommand(putParams));
   return response;
 }
+
+export async function getCommentById(id: string, table?: 'primary' | 'secondary') {
+  if (!table) table = 'primary';
+  const getParams = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+      Key: {id},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'Comment not found');
+  return response.Item;
+}
+
+export async function getComments(props: {lastEvaluatedKey?: Record<string, any>, pageSize: number, tripId: string}) {
+  const { lastEvaluatedKey, pageSize } = props;
+  const queryParams: QueryCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      IndexName: 'trip',
+      KeyConditionExpression: '#type = :type AND #trip = :trip',
+      ExpressionAttributeNames: {'#type': 'type', '#trip': 'trip'},
+      //@ts-ignore
+      ExpressionAttributeValues: {':type': '#COMMENT', ':trip': tripId}, //TS wants: {':type': {S: '#COMMENT'}} but the request breaks then
+      ScanIndexForward: false,
+      Limit: pageSize
+  };
+  if (lastEvaluatedKey) queryParams.ExclusiveStartKey = lastEvaluatedKey; //use the LastEvaluatedKey from the previous query
+  const response = await docClient.send(new QueryCommand(queryParams));
+  if (!response?.Items) throw new ResponseError(500, 'DB query failed');
+  return {
+    items: response.Items,
+    lastEvaluatedKey: response.LastEvaluatedKey,  //include LastEvaluatedKey in the response
+  };
+}
