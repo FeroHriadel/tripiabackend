@@ -343,10 +343,10 @@ export async function getComments(props: {lastEvaluatedKey?: Record<string, any>
   const queryParams: QueryCommandInput = {
       TableName: process.env.TABLE_NAME!,
       IndexName: 'trip',
-      KeyConditionExpression: '#type = :type AND #trip = :trip',
-      ExpressionAttributeNames: {'#type': 'type', '#trip': 'trip'},
+      KeyConditionExpression: '#trip = :trip',
+      ExpressionAttributeNames: {'#trip': 'trip'},
       //@ts-ignore
-      ExpressionAttributeValues: {':type': '#COMMENT', ':trip': tripId}, //TS wants: {':type': {S: '#COMMENT'}} but the request breaks then
+      ExpressionAttributeValues: {':trip': tripId}, //TS wants: {':type': {S: '#COMMENT'}} but the request breaks then
       ScanIndexForward: false,
       Limit: pageSize
   };
