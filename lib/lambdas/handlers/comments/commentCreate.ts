@@ -26,7 +26,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
     
     const body = JSON.parse(event.body!);
     const requiredKeys = ['body', 'by', 'trip', 'createdAt']; //createdAt comes from FE to avoid timezone problems
-    checkRequiredKeys(body, requiredKeys);
+    checkRequiredKeys(requiredKeys, body);
 
     const tripExists = await getTripById(body.trip, 'secondary');
     if (!tripExists) throw new ResponseError(404, 'Trip not found');

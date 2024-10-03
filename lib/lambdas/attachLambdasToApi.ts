@@ -105,4 +105,5 @@ export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   addTripEndpoints({api, lambdaIntegrations, authorizer});
   addUsersEndpoints({api, lambdaIntegrations, authorizer});
   addFavoriteTripsEndpoints({api, lambdaIntegrations, authorizer});
+  addCommentsEndpoints({api, lambdaIntegrations, authorizer});
 }
