@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { Category, FavoriteTrips, Trip, User } from "../../../types";
+import { Category, FavoriteTrips, Trip, User, Comment } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -134,9 +134,10 @@ export async function saveTrip(trip: Trip) {
   return response;
 }
 
-export async function getTripById(id: string) {
+export async function getTripById(id: string, table?: 'primary' | 'secondary') {
+  if (!table) table = 'primary';
   const getParams = {
-      TableName: process.env.TABLE_NAME!,
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
       Key: {id},
   }
   const response = await docClient.send(new GetCommand(getParams));
@@ -309,6 +310,18 @@ export async function saveFavoriteTrips(favoriteTrips: FavoriteTrips) {
   const putParams: PutItemCommandInput = {
       TableName: process.env.TABLE_NAME!, 
       Item: marshall(favoriteTrips)
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
+  return response;
+}
+
+
+
+//COMMENTS
+export async function saveComment(comment: Comment) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!, 
+      Item: marshall(comment),
   };
   const response = await docClient.send(new PutItemCommand(putParams));
   return response;

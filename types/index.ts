@@ -102,3 +102,13 @@ export interface FavoriteTrips {
   updatedAt: string;
   type: '#FAVORITE_TRIPS';
 }
+
+export interface Comment {
+  id: string;
+  by: string;
+  body: string;
+  image: string;
+  trip: string;
+  createdAt: string;
+  type: '#COMMENT'
+}
