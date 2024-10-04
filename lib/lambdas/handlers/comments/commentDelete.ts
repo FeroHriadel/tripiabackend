@@ -1,7 +1,30 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { getUserEmail, isAdmin, res } from '../utils';
+import { getUserEmail, isAdmin, res, structureImagesToDeleteForEventBus, log } from '../utils';
 import { ResponseError } from '../ResponseError';
 import { deleteComment, getCommentById } from "../dbOperations";
+import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
+
+
+
+const eventBridgeClient = new EventBridgeClient({region: process.env.REGION});
+
+
+
+function getPutEventParams(imagesUrlsToDelete: string[]) {
+    const params = {
+        Entries: [
+            {
+                Source: process.env.EVENT_BUS_SOURCE,
+                DetailType: process.env.EVENT_BUS_DETAIL_TYPE,
+                EventBusName: process.env.EVENT_BUS_NAME,
+                Detail: JSON.stringify({images: structureImagesToDeleteForEventBus(imagesUrlsToDelete)}), //eventBridge cannot do arrays - must be an object
+                Resources: []
+            }
+        ]
+    };
+    log('Event bus params: ', params);
+    return params;
+}
 
 
 
@@ -19,6 +42,13 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
       
       const deleteCommentResponse = await deleteComment(body.id);
       if (!deleteCommentResponse) throw new ResponseError(500, 'Deletion failed');
+
+      if (comment.image !== '') {
+        const deleteImageParams = getPutEventParams([comment.image]);
+        const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(deleteImageParams));
+        log('deleteImagesEventBus response: ', eventBusRes);
+      }
+
       return res(200, {message: 'Deleted', id: body.id})
 
     } catch (error) {

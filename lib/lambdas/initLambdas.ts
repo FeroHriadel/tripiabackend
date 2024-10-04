@@ -197,7 +197,13 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
     lambdaName: 'commentDelete',
     folder: 'comments',
     table: commentsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
   }).lambda;
 }
 

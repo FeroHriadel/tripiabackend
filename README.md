@@ -52,7 +52,7 @@ const myLambda = new AppLambda(stack, {
     policyStatements: {imagesBucketAccessStatement: policyStatements.imagesBucketAccessStatement} //will attach the policy statement to lambda
   }).lambda;
 ```
-- `/lib/lambdas/initLambdas.ts` contains the `initLambdas()` function that calls all the other partial helper functions above it. It initializes all app lambdas..
+- `/lib/lambdas/initLambdas.ts` contains the `initLambdas()` function that calls all the other partial helper functions above it. It initializes all app lambdas.
 - If you need to add a new lambda, `/lib/lambdas/initLambdas.ts` is the file to do it in. It does not attach the lambda to api, though! Read on for more on that...
 - `/lib/lambdas/attachLambdasToApi.ts` is called as the last thing in the stack. It attaches all the lambdas to the api. It contains the `attachLambdasToApi()` that calls all the other partial helper functions above it.
 - If you need to attach a lambda to api `/lib/lambdas/attachLambdasToApi.ts` is a file to do it in. If you want the lambda to be protected by app authorizer, add the `authorizer` prop:
@@ -70,11 +70,85 @@ function addUsersEndpoints(props: AddUsersEndpointsProps) {
 - all dynamoDB operations are in `/lib/lambdas/handlers/dbOperations` so the lambda handler code doesn't get too long and unreadable.
 - lambda handler interaction with s3, EventBus, .... is handled directly in the lambda code (no helper file for those interactions).
 
+### RESOURCES OTHER THAN LAMBDAS (S3, TABLES, EVENT BUS, API GATEWAY, AUTHORIZER, POLICY STATEMENTS...)
+- all resources follow the same pattern be it S3, DynamoDbTable, ApiGateway... Let's do an example with DynamoDbTable - the remaining types of resources work in the same way:
+- resource is located in /lib/resourceTypeName - e.g.: `/lib/tables`
+- the folder contains a file which exports a class that creates that resource - e.g.: `/lib/tables/CategoriesTable`
+- the folder also contains a file which exports an init function - which initializes the resource(s) - e.g.: `/lib/table/initTables.ts`
+- the init function is imported into `/lib/tripia-stack.ts` and invoked. Its invocation initializes the given type of resources and returns their values for further reference. E.g.:
+
+<br />
+/lib/tables/CategoriesTable.ts:
+
+```
+export class CategoriesTable {
+  private stack: cdk.Stack;
+  public table: Table;
+
+
+  public constructor(stack: cdk.Stack) {
+    this.stack = stack;
+    this.initTable();
+  }
+
+
+  private initTable() {
+    this.createTable();
+    this.addSecondaryIndexes();
+  }
+
+  ...
+}
+```
+
+<br />
+/lib/tables/initTables.ts:
+
+```
+export function initTables(stack: cdk.Stack): AppTables {
+  return {
+    categoriesTable: new CategoriesTable(stack).table,
+    tripsTable: new TripsTable(stack).table,
+    usersTable: new UsersTable(stack).table,
+    favoriteTripsTable: new FavoriteTripsTable(stack).table,
+    commentsTable: new CommentsTable(stack).table,
+  };
+}
+```
+
+<br />
+/lib/tripia-stack.ts:
+
+```
+export class TripiaStack extends cdk.Stack {
+  private tables: AppTables;
+
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+    this.initialize();
+  }
+
+  
+  private initialize() {
+    this.initializeTables();
+  }
+
+  private initializeTables() {
+    this.tables = initTables(this);
+  }
+
+  ...
+}
+```
+<br />
+
+
+
 ## ISSUES
 - there's a UsersTable. It seems redundant as the app uses Cognito where all the data of UsersTable could be stored as well. However, querying Cognito users is rigid, expensive and inflexible. No partial string searches are possible. That's why I decided to have the UsersTable where partial string searches are a bit better.
 - uses dynamoDB because it works so well with lambdas. There's a price to pay, though: 
 - dynamoDB sucks for highly changeable data and their sorting, filtering, table joins, etc. That's why:
 - trips have a hardcoded user's nickname (for search reasons). I decided not to update the nickname when user changes their nickname. This way it's theoretically possible for the user to post different trips under a different nickname. I decided it's not a bug but a feature: My ancient friends call me 'Fedo' but my recent friends call me 'Fero'. I prefer 'Fero' but there's no way I can get my old friends to call me that. In a similar vein - trips created under one nickname will always have that nickname, even if the nickname has changed ¯\_(ツ)_/¯
-- because the app can search trips by partial string match (contains condition) trips search scans :( the TripsTable. Since old trips get deleted on a regular basis I assumed the scan won't get too expensive.
+- because the app can search trips by partial string match (contains condition) trips search scans the TripsTable :( Since old trips get deleted on a regular basis I assumed the scan won't get too expensive.
 
 
