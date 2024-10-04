@@ -358,3 +358,12 @@ export async function getComments(props: {lastEvaluatedKey?: Record<string, any>
     lastEvaluatedKey: response.LastEvaluatedKey,  //include LastEvaluatedKey in the response
   };
 }
+
+export async function deleteComment(id: string) {
+  const deleteParams: DeleteCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id}
+  }
+  const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
+}

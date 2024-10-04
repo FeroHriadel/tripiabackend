@@ -193,6 +193,12 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
     folder: 'comments',
     table: commentsTable
   }).lambda;
+  appLambdas.commentDelete = new AppLambda(stack, {
+    lambdaName: 'commentDelete',
+    folder: 'comments',
+    table: commentsTable,
+    tableWriteRights: true
+  }).lambda;
 }
 
 

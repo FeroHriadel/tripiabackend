@@ -25,6 +25,7 @@ export interface AppLambdas {
   favoriteTripsSet?: NodejsFunction;
   commentCreate?: NodejsFunction;
   commentGet?: NodejsFunction;
+  commentDelete?: NodejsFunction;
 }
 
 export interface AppTables {
