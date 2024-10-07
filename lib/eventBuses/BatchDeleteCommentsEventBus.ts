@@ -1,6 +1,5 @@
 import { Stack } from "aws-cdk-lib";
 import { EventBus, Rule } from "aws-cdk-lib/aws-events";
-import { deleteImagesBusSource, deleteImagesBusDetailType, deleteImagesEventBusName, deleteImagesEventBusRuleName } from "../../utils/resourceValues";
 import { batchDeleteCommentsBusSource, batchDeleteCommentsBusDetailType, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { ServicePrincipal } from "aws-cdk-lib/aws-iam";

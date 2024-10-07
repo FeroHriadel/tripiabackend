@@ -4,7 +4,6 @@ import { ResponseError } from '../ResponseError';
 import { getTripById, deleteTrip } from "../dbOperations";
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { structureImagesToDeleteForEventBus, log, getUserEmail, isAdmin } from '../utils';
-import { error } from 'console';
 
 
 

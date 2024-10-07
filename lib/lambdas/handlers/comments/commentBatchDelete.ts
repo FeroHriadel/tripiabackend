@@ -23,7 +23,7 @@ const eventBridgeClient = new EventBridgeClient({region: process.env.REGION});
 
 
 //VALUES
-const batchSize = 2; // dynamoDB allows max 25 items per batch write
+const batchSize = 25; // dynamoDB allows max 25 items per batch write
 
 
 
