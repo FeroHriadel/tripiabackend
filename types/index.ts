@@ -27,6 +27,8 @@ export interface AppLambdas {
   commentGet?: NodejsFunction;
   commentDelete?: NodejsFunction;
   commentBatchDelete?: NodejsFunction;
+  groupCreate?: NodejsFunction;
+  groupGet?: NodejsFunction;
 }
 
 export interface AppTables {
@@ -35,6 +37,7 @@ export interface AppTables {
   usersTable: Table;
   favoriteTripsTable: Table;
   commentsTable: Table;
+  groupsTable: Table;
 }
 
 export interface AppBuckets {
@@ -117,4 +120,14 @@ export interface Comment {
   trip: string;
   createdAt: string;
   type: '#COMMENT'
+}
+
+export interface Group {
+  id: string;
+  createdBy: string;
+  members: string[];
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  type: '#GROUP';
 }

@@ -42,6 +42,10 @@ interface InitCommentsLambdasProps {
   tripsTable: Table;
 }
 
+interface InitGroupsLambdasProps {
+  groupsTable: Table;
+}
+
 
 
 const appLambdas: AppLambdas = {}; //list of all lambdas after init
@@ -225,6 +229,21 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
   }).lambda;
 }
 
+function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
+  const { groupsTable } = props;
+  appLambdas.groupCreate = new AppLambda(stack, {
+    lambdaName: 'groupCreate',
+    folder: 'groups',
+    table: groupsTable,
+    tableWriteRights: true
+  }).lambda;
+  appLambdas.groupGet = new AppLambda(stack, {
+    lambdaName: 'groupGet',
+    folder: 'groups',
+    table: groupsTable
+  }).lambda;
+}
+
 
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
@@ -235,5 +254,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initUserLambdas(stack, {usersTable: tables.usersTable});
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
+  initGroupLambdas(stack, {groupsTable: tables.groupsTable});
   return appLambdas;
 }

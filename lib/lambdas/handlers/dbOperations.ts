@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { Category, FavoriteTrips, Trip, User, Comment } from "../../../types";
+import { Category, FavoriteTrips, Trip, User, Comment, Group } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -368,3 +368,43 @@ export async function deleteComment(id: string) {
   return response;
 }
 
+
+
+//GROUPS
+export async function saveGroup(group: Group) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!, 
+      Item: marshall(group), 
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
+  return response;
+}
+
+export async function getGroupById(id: string) {
+  const getParams = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'Group not found');
+  return response.Item;
+}
+
+export async function getGroupsByEmail(email: string): Promise<Group[]> {
+  const params: QueryCommandInput = {
+    TableName: process.env.TABLE_NAME!,
+    IndexName: 'createdBy',
+    KeyConditionExpression: '#createdBy = :email',
+    ExpressionAttributeNames: {'#createdBy': 'createdBy'},
+    //@ts-ignore
+    ExpressionAttributeValues: {':email': email},
+  };
+  try {
+    const response = await docClient.send(new QueryCommand(params));
+    if (!response.Items) { return []; }
+    return response.Items as Group[];
+  } catch (error) {
+    console.error("Error fetching groups by email:", error);
+    throw new Error("Could not fetch groups");
+  }
+}

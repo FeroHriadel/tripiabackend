@@ -40,6 +40,12 @@ interface AddCommentsEndpointsProps {
   authorizer: CognitoUserPoolsAuthorizer;
 }
 
+interface AddGroupsEndpointsProps {
+  api: RestApi;
+  lambdaIntegrations: {[key: string]: LambdaIntegration};
+  authorizer: CognitoUserPoolsAuthorizer;
+}
+
 
 
 //CATEGORIES ENDPOINTS
@@ -98,6 +104,14 @@ function addCommentsEndpoints(props: AddCommentsEndpointsProps) {
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['commentDelete'], method: 'DELETE', authorizer});
 }
 
+//GROUPS ENDPOINTS
+function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
+  const { api, lambdaIntegrations, authorizer } = props;
+  const resource = createResource({pathName: 'groups', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupCreate'], method: 'POST', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
+}
+
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
 export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   const { api, lambdas, authorizer } = props;
@@ -108,4 +122,5 @@ export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   addUsersEndpoints({api, lambdaIntegrations, authorizer});
   addFavoriteTripsEndpoints({api, lambdaIntegrations, authorizer});
   addCommentsEndpoints({api, lambdaIntegrations, authorizer});
+  addGroupsEndpoints({api, lambdaIntegrations, authorizer});
 }
