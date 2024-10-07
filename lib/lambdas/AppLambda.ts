@@ -25,6 +25,7 @@ interface AppLambdaProps {
   bucket?: Bucket;
   policyStatements?: {[key: string]: PolicyStatement};
   eventBusData?: EventBusData;
+  secondaryEventBusData?: EventBusData;
 }
 
 
@@ -41,11 +42,12 @@ export class AppLambda {
   private bucket: Bucket;
   private policyStatements: {[key: string]: PolicyStatement};
   private eventBusData: EventBusData;
+  private secondaryEventBusData: EventBusData;
   public lambda: NodejsFunction;
 
 
   public constructor(stack: Stack, props: AppLambdaProps) {
-    const { lambdaName, folder, table, tableWriteRights, secondaryTable, secondaryTableWriteRights, tags, bucket, policyStatements, eventBusData } = props;
+    const { lambdaName, folder, table, tableWriteRights, secondaryTable, secondaryTableWriteRights, tags, bucket, policyStatements, eventBusData, secondaryEventBusData } = props;
     this.stack = stack;
     this.lambdaName = lambdaName;
     this.folder = folder;
@@ -57,6 +59,7 @@ export class AppLambda {
     if (bucket) this.bucket = bucket;
     if (policyStatements) this.policyStatements = policyStatements;
     if (eventBusData) this.eventBusData = eventBusData;
+    if (secondaryEventBusData) this.secondaryEventBusData = secondaryEventBusData;
     this.initialize();
   }
 
@@ -67,6 +70,7 @@ export class AppLambda {
     if (this.policyStatements) this.addRoles();
     this.addTags();
     if (this.eventBusData) this.addInvokeEventBusPermission();
+    if (this.secondaryEventBusData) this.addInvokeSecondaryEventBusPermission();
   }
 
   private createLambda() {
@@ -82,6 +86,9 @@ export class AppLambda {
         EVENT_BUS_SOURCE: this.eventBusData?.source[0] || 'no event bus source defined!',
         EVENT_BUS_DETAIL_TYPE: this.eventBusData?.detailType[0] || 'no event bus detail type defined!',
         EVENT_BUS_NAME: this.eventBusData?.busName || 'no event bus name defined!',
+        SECONDARY_EVENT_BUS_SOURCE: this.secondaryEventBusData?.source[0] || 'no secondary event bus source defined!',
+        SECONDARY_EVENT_BUS_DETAIL_TYPE: this.secondaryEventBusData?.detailType[0] || 'no secondary event bus detail type defined!',
+        SECONDARY_EVENT_BUS_NAME: this.secondaryEventBusData?.busName || 'no secondary event bus name defined!'
       }
     })
   }
@@ -108,12 +115,23 @@ export class AppLambda {
   }
 
   private addInvokeEventBusPermission() {
-    this.lambda.addPermission(`${this.lambdaName}AllowEventBusInvoke`, {
+    this.lambda.addPermission(`${this.lambdaName}Allow${this.eventBusData.busName}Invoke`, {
       principal: new ServicePrincipal('events.amazonaws.com'),
       sourceArn: this.stack.formatArn({
         service: 'events',
         resource: 'rule',
         resourceName: `${this.eventBusData.ruleName}`
+      })
+    });
+  }
+
+  private addInvokeSecondaryEventBusPermission() {
+    this.lambda.addPermission(`${this.lambdaName}Allow${this.secondaryEventBusData.busName}Invoke`, {
+      principal: new ServicePrincipal('events.amazonaws.com'),
+      sourceArn: this.stack.formatArn({
+        service: 'events',
+        resource: 'rule',
+        resourceName: `${this.secondaryEventBusData.ruleName}`
       })
     });
   }

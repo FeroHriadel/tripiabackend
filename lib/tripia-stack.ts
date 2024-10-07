@@ -74,9 +74,14 @@ export class TripiaStack extends cdk.Stack {
         this.lambdas.userUpdate!, 
         this.lambdas.tripDelete!, 
         this.lambdas.tripUpdate!, 
-        this.lambdas.commentDelete!
+        this.lambdas.commentDelete!,
+        this.lambdas.commentBatchDelete!
       ],
-      deleteImagesEventBusTargetFn: this.lambdas.deleteImages!
+      deleteImagesEventBusTargetFn: this.lambdas.deleteImages!,
+      batchDeleteCommentsEventBusPublisherFns: [
+        this.lambdas.tripDelete!
+      ],
+      batchDeleteCommentsEventBusTargetFn: this.lambdas.commentBatchDelete!
     })
   }
 

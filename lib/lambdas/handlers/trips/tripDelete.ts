@@ -4,6 +4,7 @@ import { ResponseError } from '../ResponseError';
 import { getTripById, deleteTrip } from "../dbOperations";
 import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { structureImagesToDeleteForEventBus, log, getUserEmail, isAdmin } from '../utils';
+import { error } from 'console';
 
 
 
@@ -11,7 +12,7 @@ const eventBridgeClient = new EventBridgeClient({region: process.env.REGION});
 
 
 
-function getPutEventParams(imagesUrlsToDelete: string[]) {
+function getDeleteImagesPutEventParams(imagesUrlsToDelete: string[]) {
     const params = {
         Entries: [
             {
@@ -23,7 +24,23 @@ function getPutEventParams(imagesUrlsToDelete: string[]) {
             }
         ]
     };
-    log('Event bus params: ', params);
+    log('Delete Images EventBus params: ', params);
+    return params;
+}
+
+function getDeleteCommentsPutEventParams(tripId: string) {
+    const params = {
+        Entries: [
+            {
+                Source: process.env.SECONDARY_EVENT_BUS_SOURCE,
+                DetailType: process.env.SECONDARY_EVENT_BUS_DETAIL_TYPE,
+                EventBusName: process.env.SECONDARY_EVENT_BUS_NAME,
+                Detail: JSON.stringify({tripId}),
+                Resources: []
+            }
+        ]
+    };
+    log('Delete Comments EventBus params: ', params);
     return params;
 }
 
@@ -40,15 +57,20 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             const requestUser = getUserEmail(event);
             if (requestUser !== tripExists.createdBy) throw new ResponseError(403, 'Forbidden');
         }
-
-        if (tripExists.image !== '') {
-            const deleteImageParams = getPutEventParams([tripExists.image]);
-            const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(deleteImageParams));
-            log('deleteImagesEventBus response: ', eventBusRes);
-        }
         
         const deleteTripResponse = await deleteTrip(id!);
         if (!deleteTripResponse) throw new ResponseError(500, 'Deletion failed');
+
+        if (tripExists.image !== '') {
+            const deleteImageParams = getDeleteImagesPutEventParams([tripExists.image])
+            const eventBusRes = eventBridgeClient.send(new PutEventsCommand(deleteImageParams)).catch(error => log('deleteImagesBus error:', error)); //not awaiting for faster lambda response
+            log('deleteImagesEventBus response: ', eventBusRes);
+        }
+
+        const deleteCommentsPutEventParams = getDeleteCommentsPutEventParams(tripExists.id);
+        const eventBusRes = eventBridgeClient.send(new PutEventsCommand(deleteCommentsPutEventParams)).catch(error => log('deleteCommentsBus error:', error)); //not awaiting for faster lambda response
+        log('deleteCommentsEventBus response: ', eventBusRes);
+
         return res(200, {message: 'Deleted', id});
 
     } catch (error) {

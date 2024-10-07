@@ -3,7 +3,7 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
 import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName } from "../../utils/resourceValues";
+import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -110,7 +110,13 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
       source: deleteImagesBusSource, 
       busName: deleteImagesEventBusName, 
       ruleName: deleteImagesEventBusRuleName
-    }
+    },
+    secondaryEventBusData: {
+      detailType: batchDeleteCommentsBusDetailType, 
+      source: batchDeleteCommentsBusSource, 
+      busName: batchDeleteCommentsEventBusName, 
+      ruleName: batchDeleteCommentsEventBusRuleName
+    },
   }).lambda;
   appLambdas.tripBatchGet = new AppLambda(stack, {
     lambdaName: 'tripBatchGet',
@@ -195,6 +201,18 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
   }).lambda;
   appLambdas.commentDelete = new AppLambda(stack, {
     lambdaName: 'commentDelete',
+    folder: 'comments',
+    table: commentsTable,
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
+  }).lambda;
+  appLambdas.commentBatchDelete = new AppLambda(stack, {
+    lambdaName: 'commentBatchDelete',
     folder: 'comments',
     table: commentsTable,
     tableWriteRights: true,

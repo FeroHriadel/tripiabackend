@@ -26,6 +26,7 @@ export interface AppLambdas {
   commentCreate?: NodejsFunction;
   commentGet?: NodejsFunction;
   commentDelete?: NodejsFunction;
+  commentBatchDelete?: NodejsFunction;
 }
 
 export interface AppTables {
@@ -53,6 +54,7 @@ export interface EventBusData {
 
 export interface AppEventBuses {
   deleteImagesEventBus: EventBus;
+  batchDeleteCommentsEventBus: EventBus;
 }
 
 export interface Category {

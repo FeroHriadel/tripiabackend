@@ -1,4 +1,4 @@
-import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User, Comment } from "../../../types";
@@ -367,3 +367,4 @@ export async function deleteComment(id: string) {
   const response = await docClient.send(new DeleteCommand(deleteParams));
   return response;
 }
+

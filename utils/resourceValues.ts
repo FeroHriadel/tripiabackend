@@ -15,7 +15,16 @@ export const appName = 'tripia' + '-' + process.env.STAGE;
 
 export const imagesBucketAccessTag = 'imagesBucketAccessTag';
 
+//delete images event bus
 export const deleteImagesBusSource = [appName + 'delete.images.bus.source'];
 export const deleteImagesBusDetailType = [appName + 'DeleteImagesDetailType'];
 export const deleteImagesEventBusName = appName + 'DeleteImagesBus';
 export const deleteImagesEventBusRuleName = appName + 'DeleteImagesBusRule';
+
+//batch delete comments event bus
+export const batchDeleteCommentsBusSource = [appName + 'batch.delete.comments.bus.source'];
+export const batchDeleteCommentsBusDetailType = [appName + 'BatchDeleteCommentsDetailType']; 
+export const batchDeleteCommentsEventBusName = appName + 'BatchDeleteCommentsBus';
+export const batchDeleteCommentsEventBusRuleName = appName + 'BatchDeleteCommentsBusRule';
+
+
