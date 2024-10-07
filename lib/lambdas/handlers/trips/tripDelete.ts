@@ -63,12 +63,12 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
         if (tripExists.image !== '') {
             const deleteImageParams = getDeleteImagesPutEventParams([tripExists.image])
-            const eventBusRes = eventBridgeClient.send(new PutEventsCommand(deleteImageParams)).catch(error => log('deleteImagesBus error:', error)); //not awaiting for faster lambda response
+            const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(deleteImageParams))
             log('deleteImagesEventBus response: ', eventBusRes);
         }
 
         const deleteCommentsPutEventParams = getDeleteCommentsPutEventParams(tripExists.id);
-        const eventBusRes = eventBridgeClient.send(new PutEventsCommand(deleteCommentsPutEventParams)).catch(error => log('deleteCommentsBus error:', error)); //not awaiting for faster lambda response
+        const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(deleteCommentsPutEventParams));
         log('deleteCommentsEventBus response: ', eventBusRes);
 
         return res(200, {message: 'Deleted', id});
