@@ -113,6 +113,7 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   const pathParamsResource = resource.addResource('{id}');
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
 }
 

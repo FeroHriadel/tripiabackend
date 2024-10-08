@@ -433,3 +433,17 @@ export async function deleteGroup(id: string) {
   const response = await docClient.send(new DeleteCommand(deleteParams));
   return response;
 }
+
+export async function updateGroup(id: string, name: string) {
+  const updateParams: UpdateCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id},
+      UpdateExpression: 'set #name = :name, #updatedAt = :updatedAt',
+      ExpressionAttributeNames: {'#name': 'name', '#updatedAt': 'updatedAt'},
+      ExpressionAttributeValues: {':name': name, ':updatedAt': new Date().toISOString()},
+      ReturnValues: 'ALL_NEW'
+  };
+  const response = await docClient.send(new UpdateCommand(updateParams));
+  if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
+  return response.Attributes;
+}

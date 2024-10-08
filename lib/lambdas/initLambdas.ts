@@ -253,6 +253,12 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     table: groupsTable,
     tableWriteRights: true
   }).lambda;
+  appLambdas.groupUpdate = new AppLambda(stack, {
+    lambdaName: 'groupUpdate',
+    folder: 'groups',
+    table: groupsTable,
+    tableWriteRights: true
+  }).lambda;
 }
 
 
