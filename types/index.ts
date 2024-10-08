@@ -30,6 +30,7 @@ export interface AppLambdas {
   commentBatchDelete?: NodejsFunction;
   groupCreate?: NodejsFunction;
   groupGet?: NodejsFunction;
+  groupDelete?: NodejsFunction;
 }
 
 export interface AppTables {

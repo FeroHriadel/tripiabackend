@@ -424,3 +424,12 @@ export async function getGroupsByEmail(email: string): Promise<Group[]> {
     throw new Error("Could not fetch groups");
   }
 }
+
+export async function deleteGroup(id: string) {
+  const deleteParams: DeleteCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Key: {id}
+  }
+  const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
+}

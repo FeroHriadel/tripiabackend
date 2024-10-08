@@ -112,6 +112,7 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   const resource = createResource({pathName: 'groups', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

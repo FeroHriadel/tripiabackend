@@ -247,6 +247,12 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     folder: 'groups',
     table: groupsTable
   }).lambda;
+  appLambdas.groupDelete = new AppLambda(stack, {
+    lambdaName: 'groupDelete',
+    folder: 'groups',
+    table: groupsTable,
+    tableWriteRights: true
+  }).lambda;
 }
 
 
