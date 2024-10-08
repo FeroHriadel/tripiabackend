@@ -1,21 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { res, getUserEmail } from '../utils';
+import { res } from '../utils';
 import { ResponseError } from '../ResponseError';
-import { getGroupById, getGroupsByEmail } from '../dbOperations';
+import { batchGetUsers, getUserByEmail } from '../dbOperations';
 
 
 
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     try {
-        if (event.queryStringParameters?.id) {
-            const id = event.queryStringParameters.id;
-            const group = await getGroupById(id);
-            return res(200, group);
-        } else {
-            const email = getUserEmail(event);
-            const groups = await getGroupsByEmail(email);
-            return res(200, groups);
-        }
+        const body = JSON.parse(event.body!);
+        const emails = body.emails;
+        if (!emails) throw new ResponseError(400, 'emails are required');
+        const users = await batchGetUsers(emails);
+        return res(200, users);
 
     } catch (error) {
         if (error instanceof Error || error instanceof ResponseError) {

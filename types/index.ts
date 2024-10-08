@@ -20,6 +20,7 @@ export interface AppLambdas {
   deleteImages?: NodejsFunction;
   userUpdate?: NodejsFunction;
   userGet?: NodejsFunction;
+  userBatchGet?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
   favoriteTripsGet?: NodejsFunction;
   favoriteTripsSet?: NodejsFunction;

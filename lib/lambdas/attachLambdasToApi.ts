@@ -83,8 +83,10 @@ function addImagesEndpoints(props: AddBucketsEndpointsProps) {
 function addUsersEndpoints(props: AddUsersEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'users', api});
+  const batchGetResource = createResource({pathName: 'usersbatchget', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userGet'], method: 'POST'}); //must be POST bc GET doesn't support req.body
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['userUpdate'], method: 'PUT', authorizer});
+  addFunctionToResource({resource: batchGetResource, lambdaIntegration: lambdaIntegrations['userBatchGet'], method: 'POST'}); //must be POST bc GET doesn't support req.body
 }
 
 //FAVORITE TRIPS ENDPOINTS

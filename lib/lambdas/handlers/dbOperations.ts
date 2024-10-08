@@ -122,6 +122,22 @@ export async function updateUser(props: {nickname: string; profilePicture: strin
   return response.Attributes;
 }
 
+export async function batchGetUsers(emails: string[]) {
+  const tableName = process.env.TABLE_NAME!;
+  const params = {
+    RequestItems: {[tableName]: {Keys: emails.map(email => ({ email: { S: email } }))}},
+  };
+
+  try {
+    const result = await client.send(new BatchGetItemCommand(params));
+    const users = result.Responses?.[tableName] || [];
+    return users.map(user => unmarshall(user));
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error retrieving users');
+  }
+}
+
 
 
 //TRIPS

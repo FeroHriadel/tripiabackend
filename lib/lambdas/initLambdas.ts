@@ -172,6 +172,11 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
     table: usersTable, 
     tableWriteRights: true,
   }).lambda;
+  appLambdas.userBatchGet = new AppLambda(stack, {
+    lambdaName: 'userBatchGet',
+    folder: 'users',
+    table: usersTable
+  }).lambda;
 }
 
 function initFavoriteTripsLambdas(stack: Stack, props: InitFavoriteTripsLambdasProps) {
