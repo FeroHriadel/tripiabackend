@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { res, adminOnly, getUserEmail } from '../utils';
+import { res, adminOnly, getUserEmail, isAdmin } from '../utils';
 import { ResponseError } from '../ResponseError';
 import { getCategoryById, deleteCategory, deleteGroup, getUserByEmail, getGroupById } from "../dbOperations";
 
@@ -10,7 +10,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
         const userEmail = getUserEmail(event);
         const id = event.pathParameters?.id; if (!id) throw new ResponseError(400, 'id is required');
         const group = await getGroupById(id);
-        if (group.createdBy !== userEmail) throw new ResponseError(403, 'You are not authorized to delete this group');
+        if (group.createdBy !== userEmail) { if (!isAdmin(event)) throw new ResponseError(403, 'Forbidden'); }
 
         const deleteGroupResponse = await deleteGroup(id!);
         if (!deleteGroupResponse) throw new ResponseError(500, 'Deletion failed');

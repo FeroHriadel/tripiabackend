@@ -110,9 +110,10 @@ function addCommentsEndpoints(props: AddCommentsEndpointsProps) {
 function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'groups', api});
+  const pathParamsResource = resource.addResource('{id}');
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
-  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
