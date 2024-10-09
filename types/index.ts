@@ -34,6 +34,15 @@ export interface AppLambdas {
   groupDelete?: NodejsFunction;
 }
 
+export interface WsLambdas {
+  connectLambda: NodejsFunction;
+  disconnectLambda: NodejsFunction;
+  defaultLambda: NodejsFunction;
+  getCommentsLambda: NodejsFunction;
+  addCommentLambda: NodejsFunction;
+  deleteCommentLambda: NodejsFunction;
+}
+
 export interface AppTables {
   categoriesTable: Table;
   tripsTable: Table;

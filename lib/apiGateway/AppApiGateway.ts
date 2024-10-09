@@ -1,10 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { MethodOptions, RestApi, Cors, LambdaIntegration, Resource } from 'aws-cdk-lib/aws-apigateway';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-
-
-
-type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+import { RestApi, Cors } from 'aws-cdk-lib/aws-apigateway';
 
 
 
