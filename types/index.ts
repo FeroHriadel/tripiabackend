@@ -35,12 +35,12 @@ export interface AppLambdas {
 }
 
 export interface WsLambdas {
-  connectLambda: NodejsFunction;
-  disconnectLambda: NodejsFunction;
-  defaultLambda: NodejsFunction;
-  getCommentsLambda: NodejsFunction;
-  addCommentLambda: NodejsFunction;
-  deleteCommentLambda: NodejsFunction;
+  connectLambda?: NodejsFunction;
+  disconnectLambda?: NodejsFunction;
+  defaultLambda?: NodejsFunction;
+  getCommentsLambda?: NodejsFunction;
+  addCommentLambda?: NodejsFunction;
+  deleteCommentLambda?: NodejsFunction;
 }
 
 export interface AppTables {
@@ -50,6 +50,7 @@ export interface AppTables {
   favoriteTripsTable: Table;
   commentsTable: Table;
   groupsTable: Table;
+  connectionsTable: Table;
 }
 
 export interface AppBuckets {

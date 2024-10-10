@@ -1,7 +1,6 @@
 import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
 import { res, adminOnly } from '../utils';
-import { ErrorResponse } from 'aws-cdk-lib/aws-cloudfront';
 import { Category } from '../../../../types';
 import { getCategoryByName, saveCategory } from '../dbOperations';
 import { ResponseError } from '../ResponseError';

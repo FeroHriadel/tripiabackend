@@ -1,10 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AppBuckets, AppEventBuses, AppLambdas, AppPolicyStatemens, AppTables } from '../types';
+import { AppBuckets, AppEventBuses, AppLambdas, WsLambdas, AppPolicyStatemens, AppTables } from '../types';
 import { initTables } from './tables/initTables';
 import { initLambdas } from './lambdas/initLambdas';
+import { initWsLambdas } from './lambdas/initWsLambdas';
 import { RestApi, CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
+import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { AppApiGateway } from './apiGateway/AppApiGateway';
+import { AppWsGateway } from './wsGateway/AppWsGateway';
 import { attachLambdasToApi } from './lambdas/attachLambdasToApi';
 import { AppAuthorizer } from './authorizer/AppAuthorizer';
 import { ImagesBucket } from './buckets/ImagesBucket';
@@ -18,8 +21,10 @@ export class TripiaStack extends cdk.Stack {
   private buckets: AppBuckets;
   private policyStatements: AppPolicyStatemens;
   private lambdas: AppLambdas;
+  private wsLambdas: WsLambdas;
   private eventBuses: AppEventBuses;
   private apiGateway: RestApi;
+  private wsGateway: apigatewayv2.WebSocketApi;
   private authorizer: CognitoUserPoolsAuthorizer;
 
 
@@ -34,9 +39,11 @@ export class TripiaStack extends cdk.Stack {
     this.initializeBuckets();
     this.initPolicyStatements();
     this.initializeLambdas();
+    this.initializeWsLambdas();
     this.initAppEventBuses();
     this.initApiGateway();
     this.initAppAuthorizer();
+    this.initializeWsGateway();
     this.attachLambdas();
   }
 
@@ -55,18 +62,11 @@ export class TripiaStack extends cdk.Stack {
   }
 
   private initializeLambdas() {
-    this.lambdas = initLambdas(this, {
-      tables: {
-        categoriesTable: this.tables.categoriesTable,
-        tripsTable: this.tables.tripsTable,
-        usersTable: this.tables.usersTable,
-        favoriteTripsTable: this.tables.favoriteTripsTable,
-        commentsTable: this.tables.commentsTable,
-        groupsTable: this.tables.groupsTable
-      },
-      buckets: this.buckets,
-      policyStatements: this.policyStatements
-    });
+    this.lambdas = initLambdas(this, {tables: this.tables, buckets: this.buckets, policyStatements: this.policyStatements});
+  }
+
+  private initializeWsLambdas() {
+    this.wsLambdas = initWsLambdas(this, {tables: this.tables, buckets: this.buckets, policyStatements: this.policyStatements});
   }
 
   private initAppEventBuses() {
@@ -95,6 +95,10 @@ export class TripiaStack extends cdk.Stack {
       api: this.apiGateway, 
       postConfirmationLambda: this.lambdas.cognitoPostSignup!
     }).authorizer;
+  }
+
+  private initializeWsGateway() {
+    this.wsGateway = new AppWsGateway(this, {wsLambdas: this.wsLambdas}).wsApi;
   }
 
   private attachLambdas() {

@@ -1,7 +1,7 @@
 import { App, Stack } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
-import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables } from "../../types";
+import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables, WsLambdas } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
@@ -49,6 +49,7 @@ interface InitGroupsLambdasProps {
 
 
 const appLambdas: AppLambdas = {}; //list of all lambdas after init
+const wsLambdas: WsLambdas = {}
 
 
 
@@ -273,4 +274,9 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
   initGroupLambdas(stack, {groupsTable: tables.groupsTable});
   return appLambdas;
+}
+
+export function initializeWsLambdas(stack: Stack, props: InitLambdasProps) {
+  const { tables, buckets, policyStatements } = props;
+  return wsLambdas;
 }

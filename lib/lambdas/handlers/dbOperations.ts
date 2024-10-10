@@ -1,5 +1,5 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User, Comment, Group } from "../../../types";
 import { ResponseError } from './ResponseError';
@@ -447,3 +447,50 @@ export async function updateGroup(id: string, name: string) {
   if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
   return response.Attributes;
 }
+
+
+
+//CONNECTIONS
+export const saveConnection = async (connectionId: string, groupId: string): Promise<PutCommandOutput> => {
+  try {
+    const params = {TableName: process.env.TABLE_NAME, Item: {id: connectionId, groupId: groupId}}
+    const command = new PutCommand(params);
+    const res = await docClient.send(command);
+    return res;
+  } catch (error) {
+    console.error('Error saving connection:', error);
+    throw error;
+  }
+};
+
+export const getGroupConnections = async (groupId: string): Promise<string[]> => {
+  try {
+    const params = {
+      TableName: process.env.TABLE_NAME,
+      IndexName: 'groupIdIndex',
+      KeyConditionExpression: '#groupId = :groupId',
+      ExpressionAttributeNames: {'#groupId': 'groupId'},
+      ExpressionAttributeValues: {':groupId': groupId},
+      ProjectionExpression: 'id' // only get the connection ids
+    };
+    const command = new QueryCommand(params);
+    const result = await docClient.send(command);
+    const connections = result.Items?.map(item => item.id) || [];
+    return connections;
+  } catch (error) {
+    console.error('Error fetching group connections:', error);
+    throw error;
+  }
+};
+
+export const deleteConnection = async (connectionId: string): Promise<DeleteCommandOutput> => {
+  try {
+    const params = {TableName: process.env.TABLE_NAME, Key: {id: connectionId}}
+    const command = new DeleteCommand(params);
+    const res = await docClient.send(command);
+    return res;
+  } catch (error) {
+    console.error('Error deleting connection:', error);
+    throw error;
+  }
+};

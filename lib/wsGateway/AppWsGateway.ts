@@ -21,7 +21,7 @@ interface Props {
 
 
 
-export class AppApiGateway {
+export class AppWsGateway {
   private stack: cdk.Stack;
   public wsApi: apigatewayv2.WebSocketApi;
   private wsStage: apigatewayv2.WebSocketStage;
@@ -53,19 +53,19 @@ export class AppApiGateway {
       connectRouteOptions: {
         integration: new integrations.WebSocketLambdaIntegration(
           `${this.stack.stackName}ConnectIntegration`, 
-          this.wsLambdas.connectLambda
+          this.wsLambdas.connectLambda!
         )
       },
       disconnectRouteOptions: {
         integration: new integrations.WebSocketLambdaIntegration(
           `${this.stack.stackName}DisconnectIntegration`,
-          this.wsLambdas.disconnectLambda
+          this.wsLambdas.disconnectLambda!
         )
       },
       defaultRouteOptions: {
         integration: new integrations.WebSocketLambdaIntegration(
           `${this.stack.stackName}DefaultIntegration`,
-          this.wsLambdas.defaultLambda
+          this.wsLambdas.defaultLambda!
         )
       }
     });
@@ -92,7 +92,7 @@ export class AppApiGateway {
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
        if (excludedKeys.includes(key)) return;
       const lambda = this.wsLambdas[key];
-      lambda.addEnvironment('WEBSOCKET_API_ENDPOINT', this.wsEndpoint);
+      lambda!.addEnvironment('WEBSOCKET_API_ENDPOINT', this.wsEndpoint);
     });
   }
 
@@ -107,7 +107,7 @@ export class AppApiGateway {
     //give the policy to all other lambdas
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
       if (excludedKeys.includes(key)) return;
-      this.wsLambdas[key].addToRolePolicy(manageConnectionsPolicy);
+      this.wsLambdas[key]!.addToRolePolicy(manageConnectionsPolicy);
     });
   }
 
@@ -116,7 +116,7 @@ export class AppApiGateway {
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
       if (excludedKeys.includes(key)) return;
       const lambda = this.wsLambdas[key];
-      this.wsApi.addRoute(key, {integration: new integrations.WebSocketLambdaIntegration(`${this.stack.stackName}${key}Integration`, lambda)});
+      this.wsApi.addRoute(key, {integration: new integrations.WebSocketLambdaIntegration(`${this.stack.stackName}${key}Integration`, lambda!)});
     });
   }
 }
