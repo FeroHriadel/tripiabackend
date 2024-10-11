@@ -7,6 +7,7 @@ import { FavoriteTripsTable } from './FavoriteTripsTable';
 import { CommentsTable } from './CommentsTable';
 import { GroupsTable } from './GroupsTable';
 import { ConnectionsTable } from './ConnectionsTable';
+import { PostsTable } from './PostsTable';
 
 
 
@@ -19,5 +20,6 @@ export function initTables(stack: cdk.Stack): AppTables {
     commentsTable: new CommentsTable(stack).table,
     groupsTable: new GroupsTable(stack).table,
     connectionsTable: new ConnectionsTable(stack).table,
+    postsTable: new PostsTable(stack).table
   };
 }

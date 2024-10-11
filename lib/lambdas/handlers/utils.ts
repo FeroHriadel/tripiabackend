@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { ResponseError } from "./ResponseError";
+import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 
 
 
@@ -16,6 +17,27 @@ export function res(statusCode: number, body: {[key: string]: any} | any[]) {
   };
   log('Responding: ', response);
   return response;
+}
+
+export function wsRes(statusCode: number, body: any) {
+  const response: APIGatewayProxyResult = {
+      statusCode: statusCode || 500,
+      body: JSON.stringify(body)
+  };
+  log('Responding: ', response);
+  return response;
+}
+
+export function sendToMultipleConnections(props: {apiGatewayClient: ApiGatewayManagementApiClient, connectionsIds: string[], message: any}) {
+  const {connectionsIds, apiGatewayClient, message } = props;
+  const postToConnections = connectionsIds.map(async (connectionId) => {
+    try {
+      await apiGatewayClient.send(new PostToConnectionCommand({ConnectionId: connectionId, Data: JSON.stringify(message)}));
+    } catch (err) {
+      log(`Failed to send message to connection ${connectionId}:`, err);
+    }
+  });
+  return postToConnections;
 }
 
 export function checkRequiredKeys(requiredKeys: string[], objectToCheck: {[key: string]: any}) {

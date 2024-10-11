@@ -1,10 +1,11 @@
 import { App, Stack } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
-import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables, WsLambdas } from "../../types";
+import { AppBuckets, AppPolicyStatemens, AppTables, WsLambdas } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
+import { Bucket } from "aws-cdk-lib/aws-s3";
 dotenv.config();
 
 
@@ -25,6 +26,11 @@ interface InitLambdasProps {
 
 interface InitConnectionLambdasProps {
   connectionsTable: Table;
+}
+
+interface InitPostsLambdaProps {
+  connectionsTable: Table;
+  postsTable: Table;
 }
 
 
@@ -53,10 +59,22 @@ function initConnectionLambdas(stack: Stack, props: InitConnectionLambdasProps) 
   }).lambda;
 }
 
+function initPostsLambdas(stack: Stack, props: InitPostsLambdaProps) {
+  const { connectionsTable, postsTable } = props;
+  wsLambdas.postCreate = new AppLambda(stack, {
+    lambdaName: 'postCreate',
+    folder: 'ws',
+    table: connectionsTable,
+    secondaryTable: postsTable,
+    secondaryTableWriteRights: true,
+  }).lambda;
+}
+
 
 
 export function initWsLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables, buckets, policyStatements } = props;
   initConnectionLambdas(stack, { connectionsTable: tables.connectionsTable });
+  initPostsLambdas(stack, { connectionsTable: tables.connectionsTable, postsTable: tables.postsTable });
   return wsLambdas;
 }

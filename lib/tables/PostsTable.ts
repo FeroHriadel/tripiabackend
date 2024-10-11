@@ -4,22 +4,20 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 
 
 /**********************************************************************************************
- * Comments (belong to Trip) retrieval: 
- *    1) comments can be retrieved by trip.id and sorted by createdAt at the same time
+ * Posts (belong to Group) retrieval: 
+ *    1) posts can be retrieved by groupId and sorted by createdAt at the same time
 **********************************************************************************************/
 
 
 
-export class CommentsTable {
+export class PostsTable {
   private stack: cdk.Stack;
   public table: Table;
-
 
   public constructor(stack: cdk.Stack) {
     this.stack = stack;
     this.initTable();
   }
-
 
   private initTable() {
     this.createTable();
@@ -27,8 +25,8 @@ export class CommentsTable {
   }
 
   private createTable() {
-    this.table = new Table(this.stack, this.stack.stackName + 'CommentsTable', {
-      tableName: this.stack.stackName + 'CommentsTable',
+    this.table = new Table(this.stack, this.stack.stackName + 'PostsTable', {
+      tableName: this.stack.stackName + 'PostsTable',
       partitionKey: {name: 'id', type: AttributeType.STRING},
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST
@@ -36,11 +34,11 @@ export class CommentsTable {
   }
 
   private addSecondaryIndexes() {
-    //so we can search comments by trip.id (and with `ScanIndexForward: false` get from freshest to oldest)
+    // To retrieve posts by groupId and sort by createdAt
     this.table.addGlobalSecondaryIndex({
-      indexName: 'trip',
-      partitionKey: {name: 'trip', type: AttributeType.STRING},
+      indexName: 'groupIdIndex',
+      partitionKey: {name: 'groupId', type: AttributeType.STRING},
       sortKey: {name: 'createdAt', type: AttributeType.STRING},
-    })
+    });
   }
 }

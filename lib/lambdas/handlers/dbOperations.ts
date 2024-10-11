@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { Category, FavoriteTrips, Trip, User, Comment, Group } from "../../../types";
+import { Category, FavoriteTrips, Trip, User, Comment, Group, Post } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -333,7 +333,7 @@ export async function saveFavoriteTrips(favoriteTrips: FavoriteTrips) {
 
 
 
-//COMMENTS
+//COMMENTS (trip comments)
 export async function saveComment(comment: Comment) {
   const putParams: PutItemCommandInput = {
       TableName: process.env.TABLE_NAME!, 
@@ -492,5 +492,39 @@ export const deleteConnection = async (connectionId: string): Promise<DeleteComm
   } catch (error) {
     console.error('Error deleting connection:', error);
     throw error;
+  }
+};
+
+
+
+//POSTS (group chats)
+export async function savePost(props: {post: Post, table?: 'primary' | 'secondary'}) {
+  let { post, table } = props;
+  if (!table) table = 'primary';
+  const putParams: PutItemCommandInput = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!, 
+      Item: marshall(post), 
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
+  return response;
+}
+
+export const getPostsByGroupId = async (props: {groupId: string; table?: 'primary' | 'secondary'}): Promise<Post[]> => {
+  let { groupId, table } = props;
+  if (!table) table = 'primary';
+  const params = {
+    TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+    IndexName: 'groupIdIndex',
+    KeyConditionExpression: '#groupId = :groupId',
+    ExpressionAttributeNames: {'#groupId': 'groupId'},
+    ExpressionAttributeValues: {':groupId': groupId},
+    ScanIndexForward: false, //get the most recent posts first
+  };
+  try {
+    const data = await docClient.send(new QueryCommand(params));
+    return data.Items as Post[];
+  } catch (err) {
+    console.error('Error retrieving posts:', err);
+    throw new Error('Error retrieving posts');
   }
 };

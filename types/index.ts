@@ -38,9 +38,9 @@ export interface WsLambdas {
   connectLambda?: NodejsFunction;
   disconnectLambda?: NodejsFunction;
   defaultLambda?: NodejsFunction;
-  getCommentsLambda?: NodejsFunction;
-  addCommentLambda?: NodejsFunction;
-  deleteCommentLambda?: NodejsFunction;
+  postCreate?: NodejsFunction;
+  postGet?: NodejsFunction;
+  postDelete?: NodejsFunction;
 }
 
 export interface AppTables {
@@ -51,6 +51,7 @@ export interface AppTables {
   commentsTable: Table;
   groupsTable: Table;
   connectionsTable: Table;
+  postsTable: Table;
 }
 
 export interface AppBuckets {
@@ -143,4 +144,14 @@ export interface Group {
   createdAt: string;
   updatedAt: string;
   type: '#GROUP';
+}
+
+export interface Post {
+  id: string;
+  groupId: string;
+  createdAt: string;
+  postedBy: string;
+  body: string;
+  images: string[];
+  type: '#POST';
 }
