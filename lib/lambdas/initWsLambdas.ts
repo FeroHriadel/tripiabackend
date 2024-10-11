@@ -68,6 +68,12 @@ function initPostsLambdas(stack: Stack, props: InitPostsLambdaProps) {
     secondaryTable: postsTable,
     secondaryTableWriteRights: true,
   }).lambda;
+  wsLambdas.postGet = new AppLambda(stack, {
+    lambdaName: 'postGet',
+    folder: 'ws',
+    table: postsTable,
+    tableWriteRights: true,
+  }).lambda;
 }
 
 
