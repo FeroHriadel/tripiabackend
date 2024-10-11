@@ -41,6 +41,7 @@ ACCOUNT_ID = 222677608122
 - the `/lib` folder also holds the code for the creation of all app resources: `/lib/lambdas`, `/lib/buckets`, `lib/apiGateway`...
 
 ### LAMBDAS
+- This is about RestApi lambdas. WS Lambdas are the section below.
 - are the most complex resource in the app. Once you crack that the rest is a breeze.
 - `/lib/lambdas/AppLambda.ts` is used to initiate all app lambdas. Just declare `new AppLambda(stack, props)`.
 - AppLambda props can take 2 dynamoDB tables, eventBus, tags, s3bucket, policy statements... and attaches it all to the lambda so you don't have to do it manually. Example:
@@ -69,6 +70,12 @@ function addUsersEndpoints(props: AddUsersEndpointsProps) {
 - naming convention is: `tripCreate`, `tripGet`, `tripUpdate`, `tripDelete` - handlers that don't fall into the CRUD routine have no naming convention
 - all dynamoDB operations are in `/lib/lambdas/handlers/dbOperations` so the lambda handler code doesn't get too long and unreadable.
 - lambda handler interaction with s3, EventBus, .... is handled directly in the lambda code (no helper file for those interactions).
+
+### WS LAMBDAS
+- WS Lambdas are created in a similar way as RestApi lambdas - using the `AppLambda` class (see section above) only they are initialized in `/lib/lambdas/initWsLambdas.ts` so it's easier to separate them from RestApi lambdas.
+- Lambdas are attached to WsApi in `AppWsGateway` class. The `connect, disconnect, and default` lambdas are created and attached by `createWsApi()` method. Custom routes and their lambdas are attached to WsGateway by `addCustomRoutes()`.
+- At the time the custom routes lambdas are created (in `/lib/lambdas/initWsLambdas.ts`) they are not given any role, nor WEBSOCKET_API_ENDPOINT environment variable. These are, however, added in `AppWsGateway` class by `addWsEndpointToEnvVars() and addManageConnectionsRole();` methods. That means that the WEBSOCKET_API_ENDPOINT environment variable can be (and is) used in ws lambda handlers even if they cannot be seen in the `AppLambda` class.
+
 
 ### RESOURCES OTHER THAN LAMBDAS (S3, TABLES, EVENT BUS, API GATEWAY, AUTHORIZER, POLICY STATEMENTS...)
 - all resources follow the same pattern be it S3, DynamoDbTable, ApiGateway... Let's do an example with DynamoDbTable - the remaining types of resources work in the same way:
