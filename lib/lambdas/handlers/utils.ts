@@ -28,7 +28,7 @@ export function wsRes(statusCode: number, body: any) {
   return response;
 }
 
-export function sendToMultipleConnections(props: {apiGatewayClient: ApiGatewayManagementApiClient, connectionsIds: string[], message: any}) {
+export function sendToWSConnections(props: {apiGatewayClient: ApiGatewayManagementApiClient, connectionsIds: string[], message: any}) {
   const {connectionsIds, apiGatewayClient, message } = props;
   const postToConnections = connectionsIds.map(async (connectionId) => {
     try {

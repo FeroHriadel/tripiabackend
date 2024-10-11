@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 import { v4 } from 'uuid';
 import { ResponseError } from '../ResponseError';
-import { checkRequiredKeys, log, wsRes, sendToMultipleConnections } from '../utils';
+import { checkRequiredKeys, log, wsRes, sendToWSConnections } from '../utils';
 import { getGroupConnections, savePost } from '../dbOperations';
 
 
@@ -36,36 +36,32 @@ function createPostObj(props: CreatePostObjProps) {
 }
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
+  const connectionId = event.requestContext.connectionId;
   try {
+    if (!connectionId) throw new ResponseError(400, 'Failed to get connectionId');
+    
     //get body
-    log('lambda triggered...');
-    log('event: ', event);
     const body = JSON.parse(event.body || '{}');
 
-    if (body.action === 'postCreate' && body.post) {
-      //get all connected group members
-      checkRequiredKeys(['postedBy', 'groupId', 'body'], body.post);
-      const connectionsIds = await getGroupConnections(body.post.groupId);
-      log('connectionsIds: ', connectionsIds);
-      
-      //save post
-      const post = createPostObj(body.post);
-      const saveRes = await savePost({post: post, table: 'secondary'});
-      log('saveRes: ', saveRes);
+    //get all connected group members
+    checkRequiredKeys(['postedBy', 'groupId', 'body'], body.post);
+    const connectionsIds = await getGroupConnections(body.post.groupId);
+    
+    //save post
+    const post = createPostObj(body.post);
+    const saveRes = await savePost({post: post, table: 'secondary'});
 
-      //send post to all connected group members
-      const message = {action: 'postCreated', post};
-      const postToConnectionsRes = await Promise.all(sendToMultipleConnections({connectionsIds, apiGatewayClient, message}));
-      log('postToConnectionsRes: ', postToConnectionsRes);
+    //send post to all connected group members
+    const message = {action: 'postCreated', post};
+    const postToConnectionsRes = await Promise.all(sendToWSConnections({connectionsIds, apiGatewayClient, message}));
 
-      return wsRes(201, { action: 'postCreateResponse', post, ok: true, message: 'Post created successfully' });
-    }
-    else {
-      log('Invalid action or post data'); log('event: ', event);
-      throw new ResponseError(400, 'Invalid action or post data');
-    }
+    //FE doesn't get this but chatGPT says this is mandatory. So I keep this line just in case
+    return wsRes(201, { action: 'postCreateResponse', post, ok: true, message: 'Post created successfully' });
     
   } catch (error) {
+    log('error: ', error);
+    const message = {action: 'postCreate', posts: [], error: 'Failed to create post'};
+    if (connectionId) await Promise.all(sendToWSConnections({connectionsIds: [connectionId], apiGatewayClient, message}));
     if (error instanceof Error || error instanceof ResponseError) {
       return wsRes(
         (error as ResponseError).statusCode || 500,
