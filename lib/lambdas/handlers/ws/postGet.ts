@@ -29,11 +29,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     await Promise.all(sendToWSConnections({connectionsIds: [connectionId], apiGatewayClient, message}));
 
     //FE doesn't get this but chatGPT says this is mandatory. So I keep this line just in case
-    return wsRes(200, {action: 'posts', posts});
+    return wsRes(200, message);
     
   } catch (error) {
     log('error: ', error);
-    const message = {action: 'posts', posts: [], error: 'Failed to get posts'};
+    const message = {action: 'posts', error: 'Failed to get posts'};
     if (connectionId) await Promise.all(sendToWSConnections({connectionsIds: [connectionId], apiGatewayClient, message}));
     if (error instanceof Error || error instanceof ResponseError) {
       return wsRes(
