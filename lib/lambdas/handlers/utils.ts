@@ -92,3 +92,32 @@ export function structureImagesToDeleteForEventBus(imagesArr: string[]) {
   });
   return images; // {image1: '2024-06VFPrasnica.jpg65817.png', image2: '2024-06VFPrasnica2.jpg47097.png', ...}
 }
+
+export function getWsUserEmail(event: APIGatewayProxyEvent): string | null {
+  const authorizer = event.requestContext.authorizer;
+  if (authorizer && authorizer.data) {
+    try {
+      const decodedToken = JSON.parse(authorizer.data);
+      return decodedToken?.decodedToken?.email || null;
+    } catch (error) {
+      console.error("Error parsing authorizer data:", error);
+      return null;
+    }
+  }
+  return null;
+}
+
+export function isUserAdminWs(event: APIGatewayProxyEvent): boolean {
+  const authorizer = event.requestContext.authorizer;
+  if (authorizer && authorizer.data) {
+    try {
+      const decodedToken = JSON.parse(authorizer.data);
+      const groups = decodedToken?.decodedToken?.["cognito:groups"] || [];
+      return groups.includes("admin");
+    } catch (error) {
+      console.error("Error parsing authorizer data:", error);
+      return false;
+    }
+  }
+  return false;
+}
