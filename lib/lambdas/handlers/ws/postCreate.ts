@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 import { v4 } from 'uuid';
 import { ResponseError } from '../ResponseError';
-import { checkRequiredKeys, log, wsRes, sendToWSConnections } from '../utils';
+import { checkRequiredKeys, log, wsRes, sendToWSConnections, getWsUserEmail } from '../utils';
 import { getGroupConnections, savePost } from '../dbOperations';
 
 
@@ -40,18 +40,22 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   try {
     if (!connectionId) throw new ResponseError(400, 'Failed to get connectionId');
     log('connectionId: ', connectionId);
+
+    //get user's email
+    const userEmail = getWsUserEmail(event);
+    log('userEmail: ', userEmail);
     
     //get body
     const body = JSON.parse(event.body || '{}');
     log('body: ', body);
 
     //get all connected group members
-    checkRequiredKeys(['postedBy', 'groupId', 'body'], body.post);
+    checkRequiredKeys(['groupId', 'body'], body.post);
     const connectionsIds = await getGroupConnections(body.post.groupId);
     log('connectionsIds: ', connectionsIds);
     
     //save post
-    const post = createPostObj(body.post);
+    const post = createPostObj({...body.post, postedBy: userEmail});
     const saveRes = await savePost({post: post, table: 'secondary'});
     log('saveRes: ', saveRes);
 
