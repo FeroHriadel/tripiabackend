@@ -4,6 +4,7 @@ import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { WsLambdas } from '../../types';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 
 
 
@@ -27,6 +28,7 @@ export class AppWsGateway {
   private wsStage: apigatewayv2.WebSocketStage;
   public wsEndpoint: string;
   private wsLambdas: WsLambdas;
+  private authorizer: authorizers.WebSocketLambdaAuthorizer;
 
 
   public constructor(stack: cdk.Stack, props: Props) {
@@ -37,6 +39,7 @@ export class AppWsGateway {
 
 
   private initialize() {
+    this.createAuthorizer();
     this.createWsApi();
     this.deployWsApi();
     this.getWsEndpoint();
@@ -47,6 +50,12 @@ export class AppWsGateway {
     this.wsApi
   }
 
+  private createAuthorizer() {
+    this.authorizer = new authorizers.WebSocketLambdaAuthorizer(`${this.stack.stackName}wsGwAuthorizer`, this.wsLambdas.wsAuthLambda!, {
+      identitySource: ['route.request.querystring.token']
+    });
+  }
+
   private createWsApi() {
     this.wsApi = new apigatewayv2.WebSocketApi(this.stack, `${this.stack.stackName}WsApi`, { 
       apiName: `${this.stack.stackName}WsApi`,
@@ -54,7 +63,8 @@ export class AppWsGateway {
         integration: new integrations.WebSocketLambdaIntegration(
           `${this.stack.stackName}ConnectIntegration`, 
           this.wsLambdas.connectLambda!
-        )
+        ),
+        authorizer: this.authorizer
       },
       disconnectRouteOptions: {
         integration: new integrations.WebSocketLambdaIntegration(
@@ -88,7 +98,7 @@ export class AppWsGateway {
   }
 
   private addWsEndpointToEnvVars() {
-    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda'];
+    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda', 'wsAuthLambda'];
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
        if (excludedKeys.includes(key)) return;
       const lambda = this.wsLambdas[key];
@@ -103,7 +113,7 @@ export class AppWsGateway {
       resources: [`arn:aws:execute-api:${this.stack.region}:${this.stack.account}:${this.wsApi.apiId}/*`],
     });
     //these lambdas don't need the policy
-    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda'];
+    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda', 'wsAuthLambda'];
     //give the policy to all other lambdas
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
       if (excludedKeys.includes(key)) return;
@@ -112,7 +122,7 @@ export class AppWsGateway {
   }
 
   private addCustomRoutes() {
-    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda'];
+    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda', 'wsAuthLambda'];
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
       if (excludedKeys.includes(key)) return;
       const lambda = this.wsLambdas[key];

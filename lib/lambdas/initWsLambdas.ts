@@ -39,6 +39,14 @@ const wsLambdas: WsLambdas = {}
 
 
 
+function initWsAuthLambda(stack: Stack) {
+  wsLambdas.wsAuthLambda = new AppLambda(stack, {
+    lambdaName: 'wsAuth',
+    folder: 'ws',
+  }).lambda;
+}
+
+
 function initConnectionLambdas(stack: Stack, props: InitConnectionLambdasProps) {
   const { connectionsTable } = props;
   wsLambdas.connectLambda = new AppLambda(stack, {
@@ -79,8 +87,9 @@ function initPostsLambdas(stack: Stack, props: InitPostsLambdaProps) {
 
 
 export function initWsLambdas(stack: Stack, props: InitLambdasProps) {
-  const { tables, buckets, policyStatements } = props;
+  const { tables } = props;
   initConnectionLambdas(stack, { connectionsTable: tables.connectionsTable });
   initPostsLambdas(stack, { connectionsTable: tables.connectionsTable, postsTable: tables.postsTable });
+  initWsAuthLambda(stack);
   return wsLambdas;
 }

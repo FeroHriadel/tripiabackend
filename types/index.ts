@@ -38,6 +38,7 @@ export interface WsLambdas {
   connectLambda?: NodejsFunction;
   disconnectLambda?: NodejsFunction;
   defaultLambda?: NodejsFunction;
+  wsAuthLambda?: NodejsFunction;
   postCreate?: NodejsFunction;
   postGet?: NodejsFunction;
   postDelete?: NodejsFunction;
