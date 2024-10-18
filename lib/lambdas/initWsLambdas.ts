@@ -10,11 +10,12 @@ dotenv.config();
 
 
 
-/*****************************************************************************************************************
-  - At the time of creation of wsLambdas there's no WEBSOCKET_API_ENDPOINT env. var value and no ws related policy
-  - Feel free to use the WEBSOCKET_API_ENDPOINT in their handlers though => it will be added later by AppWsGateway
+/***************************************************************************************************************************
+  - At the time of wsLambdas initialization (when `initializeWsLambdas()` is called in tripai-stack.ts)
+    there's no WEBSOCKET_API_ENDPOINT environemnt variable value and no ws-related policy. But:
+  - Feel free to use the WEBSOCKET_API_ENDPOINT in their handlers, though => it will be added later by AppWsGateway
   - WS related Policies will also be added later by AppWsGateway
-*****************************************************************************************************************/
+****************************************************************************************************************************/
 
 
 
@@ -81,6 +82,19 @@ function initPostsLambdas(stack: Stack, props: InitPostsLambdaProps) {
     folder: 'ws',
     table: postsTable,
     tableWriteRights: true,
+  }).lambda;
+  wsLambdas.postDelete = new AppLambda(stack, {
+    lambdaName: 'postDelete',
+    folder: 'ws',
+    table: connectionsTable,
+    secondaryTable: postsTable,
+    secondaryTableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
   }).lambda;
 }
 

@@ -1,10 +1,21 @@
-import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient, GetCommand, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
+import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User, Comment, Group, Post } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
+
+
+
+/********************************************************************************************************************************
+A mistake was made and the `client-dynamodb` and `lib-dynamodb` were both used instead of just sticking to one.
+You look at the radically dissimilar names and wonder how that happened... 
+In some functions below Put(Delete, Query...)ItemCommandInput type is used where Put(Delete, Query...)CommandInput should be used 
+That's why the //@ts-ignore
+Also the marshall() fn is used unnecesarilly in some cases.
+Doesn't break anything but beware of that in the future.
+*********************************************************************************************************************************/
 
 
 
@@ -528,3 +539,26 @@ export const getPostsByGroupId = async (props: {groupId: string; table?: 'primar
     throw new Error('Error retrieving posts');
   }
 };
+
+export async function deletePost(props: { id: string, table?: 'primary' | 'secondary' }) {
+  let { id, table } = props;
+  if (!table) table = 'primary';
+  const deleteParams: DeleteCommandInput = {
+    TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+    Key: marshall({ id }),
+  };
+  const response = await docClient.send(new DeleteItemCommand(deleteParams));
+  return response;
+}
+
+export async function getPostById(props: {id: string, table?: 'primary' | 'secondary'}) {
+  let { id, table } = props;
+  if (!table) table = 'primary';
+  const getParams = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+      Key: {id},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'Item not found');
+  return response.Item;
+}

@@ -4,8 +4,12 @@ import { wsRes, log, checkRequiredKeys, sendToWSConnections, getWsUserEmail } fr
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 
+
+
 const endpointWithHttps = process.env.WEBSOCKET_API_ENDPOINT?.replace('wss', 'https'); // ApiGatewayManagementApiClient needs the ws endpoint to start with `https`, not `wss`
 const apiGatewayClient = new ApiGatewayManagementApiClient({ endpoint: endpointWithHttps });
+
+
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
   const connectionId = event.requestContext.connectionId;
@@ -21,7 +25,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const posts = await getPostsByGroupId({ groupId: body.groupId, table: 'primary' });
 
     // Send posts to FE
-    const message = { action: 'posts', posts };
+    const message = { action: 'postGet', posts };
     await Promise.all(sendToWSConnections({ connectionsIds: [connectionId], apiGatewayClient, message }));
 
     // FE doesn't get this but chatGPT says this is mandatory. So I keep this line just in case
