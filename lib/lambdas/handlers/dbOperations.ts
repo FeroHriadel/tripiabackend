@@ -149,6 +149,24 @@ export async function batchGetUsers(emails: string[]) {
   }
 }
 
+export async function getUsersByNicknameStartsWith(props: {nicknameStartsWith: string, table?: 'primary' | 'secondary'}) {
+  let { nicknameStartsWith, table } = props;
+  if (!table) table = 'primary';
+  const queryParams = {
+    TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+    IndexName: 'NicknameLowerIndex',
+    KeyConditionExpression: '#nickname_lower BETWEEN :prefix AND :prefixEnd',
+    ExpressionAttributeValues: {
+      ':prefix': nicknameStartsWith.toLowerCase(),
+      ':prefixEnd': nicknameStartsWith.toLowerCase() + 'z'
+    },
+    ExpressionAttributeNames: {'#nickname_lower': 'nickname_lower'},
+  };
+  const response = await docClient.send(new QueryCommand(queryParams));
+  if (!response.Items || response.Items.length === 0) throw new ResponseError(404, 'No users found');
+  return response.Items;
+}
+
 
 
 //TRIPS

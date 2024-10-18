@@ -33,4 +33,11 @@ export class UsersTable {
       billingMode: BillingMode.PAY_PER_REQUEST
     });
   }
+
+  private addSecondaryIndexes() {
+    this.table.addGlobalSecondaryIndex({
+      indexName: 'NicknameLowerIndex',
+      partitionKey: { name: 'nickname_lower', type: AttributeType.STRING },
+    });
+  }
 }

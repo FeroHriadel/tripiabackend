@@ -34,6 +34,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
       let {email, nickname, profilePicture, about} = body;
       if (!profilePicture) profilePicture = '';
       if (!about) about = '';
+      if (nickname.length < 2) nickname = email.split('@')[0];
 
       const requestUserEmail = getUserEmail(event);
       const isUserAdmin = isAdmin(event);
