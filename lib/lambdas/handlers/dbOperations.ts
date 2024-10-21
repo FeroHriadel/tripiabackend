@@ -592,6 +592,7 @@ export async function saveInvitation(invitation: Invitation) {
 }
 
 export async function getInvitationsByInvitee(invitee: string, table?: 'primary' | 'secondary') {
+  if (!table) table = 'primary';
   const queryParams = {
     TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
     IndexName: 'typeInviteeIndex',
