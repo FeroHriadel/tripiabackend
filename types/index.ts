@@ -32,6 +32,7 @@ export interface AppLambdas {
   groupGet?: NodejsFunction;
   groupUpdate?: NodejsFunction;
   groupDelete?: NodejsFunction;
+  invitationCreate?: NodejsFunction;
 }
 
 export interface WsLambdas {
@@ -53,6 +54,7 @@ export interface AppTables {
   groupsTable: Table;
   connectionsTable: Table;
   postsTable: Table;
+  invitationsTable: Table;
 }
 
 export interface AppBuckets {
@@ -155,4 +157,16 @@ export interface Post {
   body: string;
   images: string[];
   type: '#POST';
+}
+
+export interface Invitation {
+  id: string;
+  groupId: string;
+  groupName: string;
+  invitedByEmail: string;
+  invitedByNickname: string;
+  invitedByImage?: string;
+  invitee: string;
+  createdAt: string;
+  type: '#INVITATION';
 }

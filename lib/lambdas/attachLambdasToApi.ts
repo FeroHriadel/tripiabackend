@@ -46,6 +46,12 @@ interface AddGroupsEndpointsProps {
   authorizer: CognitoUserPoolsAuthorizer;
 }
 
+interface AddInvitationsEndpointsProps {
+  api: RestApi;
+  lambdaIntegrations: {[key: string]: LambdaIntegration};
+  authorizer: CognitoUserPoolsAuthorizer;
+}
+
 
 
 //CATEGORIES ENDPOINTS
@@ -117,6 +123,13 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
 }
 
+//INVITATIONS ENDPOINTS
+function addInvitationsEndpoints(props: AddInvitationsEndpointsProps) {
+  const { api, lambdaIntegrations, authorizer } = props;
+  const resource = createResource({pathName: 'invitations', api});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationCreate'], method: 'POST', authorizer});
+}
+
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
 export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   const { api, lambdas, authorizer } = props;
@@ -128,4 +141,5 @@ export function attachLambdasToApi(props: AttachLambdasToApiProps) {
   addFavoriteTripsEndpoints({api, lambdaIntegrations, authorizer});
   addCommentsEndpoints({api, lambdaIntegrations, authorizer});
   addGroupsEndpoints({api, lambdaIntegrations, authorizer});
+  addInvitationsEndpoints({api, lambdaIntegrations, authorizer});
 }

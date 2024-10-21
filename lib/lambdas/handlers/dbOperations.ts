@@ -1,7 +1,7 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { Category, FavoriteTrips, Trip, User, Comment, Group, Post } from "../../../types";
+import { Category, FavoriteTrips, Trip, User, Comment, Group, Post, Invitation } from "../../../types";
 import { ResponseError } from './ResponseError';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -577,4 +577,29 @@ export async function getPostById(props: {id: string, table?: 'primary' | 'secon
   const response = await docClient.send(new GetCommand(getParams));
   if (!response.Item) throw new ResponseError(404, 'Item not found');
   return response.Item;
+}
+
+
+
+//INVITATIONS
+export async function saveInvitation(invitation: Invitation) {
+  const putParams: PutItemCommandInput = {
+      TableName: process.env.TABLE_NAME!,
+      Item: marshall(invitation),
+  };
+  const response = await docClient.send(new PutItemCommand(putParams));
+  return response;
+}
+
+export async function getInvitationsByInvitee(invitee: string, table?: 'primary' | 'secondary') {
+  const queryParams = {
+    TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+    IndexName: 'typeInviteeIndex',
+    KeyConditionExpression: '#type = :type and #invitee = :invitee',
+    ExpressionAttributeNames: {'#type': 'type', '#invitee': 'invitee'},
+    ExpressionAttributeValues: {':type': '#INVITATION', ':invitee': invitee},
+  };
+  const response = await client.send(new QueryCommand(queryParams));
+  if (!response.Items) throw new Error('Failed to find invitation');
+  return response.Items as Invitation[];
 }

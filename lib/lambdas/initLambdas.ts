@@ -46,6 +46,10 @@ interface InitGroupsLambdasProps {
   groupsTable: Table;
 }
 
+interface InitInvitationsLambdasProps {
+  invitationsTable: Table;
+}
+
 
 
 const appLambdas: AppLambdas = {}; //list of all lambdas after init
@@ -262,6 +266,16 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
   }).lambda;
 }
 
+function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps) {
+  const{ invitationsTable } = props;
+  appLambdas.invitationCreate = new AppLambda(stack, {
+    lambdaName: 'invitationCreate',
+    folder: 'invitations',
+    table: invitationsTable,
+    tableWriteRights: true
+  }).lambda;
+}
+
 
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
@@ -273,10 +287,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
   initGroupLambdas(stack, {groupsTable: tables.groupsTable});
+  initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable});
   return appLambdas;
-}
-
-export function initializeWsLambdas(stack: Stack, props: InitLambdasProps) {
-  const { tables, buckets, policyStatements } = props;
-  return wsLambdas;
 }

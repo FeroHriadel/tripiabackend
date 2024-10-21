@@ -7,6 +7,8 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
  * User retrieval: 
  *    Users's don't have id but email as the partition key
  *    1) get user by email
+ *    2) get user by type and nickname_lower (type = #USER, nickname_lower = searchword)
+ * 
 *******************************************************************************************/
 
 
