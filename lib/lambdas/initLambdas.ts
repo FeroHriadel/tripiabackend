@@ -152,7 +152,7 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
   appLambdas.userGet = new AppLambda(stack, {
     lambdaName: 'userGet',
     folder: 'users',
-    table: usersTable
+    table: usersTable,
   }).lambda;
   appLambdas.userUpdate = new AppLambda(stack, {
     lambdaName: 'userUpdate', 

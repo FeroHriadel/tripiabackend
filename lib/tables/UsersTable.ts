@@ -23,6 +23,7 @@ export class UsersTable {
 
   private initTable() {
     this.createTable();
+    this.addSecondaryIndexes();
   }
 
   private createTable() {
@@ -36,8 +37,9 @@ export class UsersTable {
 
   private addSecondaryIndexes() {
     this.table.addGlobalSecondaryIndex({
-      indexName: 'NicknameLowerIndex',
-      partitionKey: { name: 'nickname_lower', type: AttributeType.STRING },
+      indexName: 'TypeNicknameLowerIndex',
+      partitionKey: { name: 'type', type: AttributeType.STRING },
+      sortKey: { name: 'nickname_lower', type: AttributeType.STRING },
     });
   }
 }
