@@ -33,6 +33,7 @@ export interface AppLambdas {
   groupUpdate?: NodejsFunction;
   groupDelete?: NodejsFunction;
   invitationCreate?: NodejsFunction;
+  invitationGet?: NodejsFunction;
 }
 
 export interface WsLambdas {

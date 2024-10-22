@@ -128,6 +128,7 @@ function addInvitationsEndpoints(props: AddInvitationsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'invitations', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationCreate'], method: 'POST', authorizer});
+  addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationGet'], method: 'GET', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

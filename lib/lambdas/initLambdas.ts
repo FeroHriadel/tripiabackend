@@ -274,6 +274,11 @@ function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps)
     table: invitationsTable,
     tableWriteRights: true
   }).lambda;
+  appLambdas.invitationGet = new AppLambda(stack, {
+    lambdaName: 'invitationGet',
+    folder: 'invitations',
+    table: invitationsTable
+  }).lambda;
 }
 
 
