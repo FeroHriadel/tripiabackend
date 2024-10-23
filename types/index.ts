@@ -21,6 +21,7 @@ export interface AppLambdas {
   userUpdate?: NodejsFunction;
   userGet?: NodejsFunction;
   userBatchGet?: NodejsFunction;
+  userUpdateGroups?: NodejsFunction;
   cognitoPostSignup?: NodejsFunction;
   favoriteTripsGet?: NodejsFunction;
   favoriteTripsSet?: NodejsFunction;
@@ -32,6 +33,7 @@ export interface AppLambdas {
   groupGet?: NodejsFunction;
   groupUpdate?: NodejsFunction;
   groupDelete?: NodejsFunction;
+  groupBatchGet?: NodejsFunction;
   invitationCreate?: NodejsFunction;
   invitationGet?: NodejsFunction;
   invitationDelete?: NodejsFunction;
@@ -77,6 +79,7 @@ export interface EventBusData {
 export interface AppEventBuses {
   deleteImagesEventBus: EventBus;
   batchDeleteCommentsEventBus: EventBus;
+  updateUserGroupsEventBus: EventBus;
 }
 
 export interface Category {
@@ -122,7 +125,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   type: '#USER';
-  groups?: string[]
+  groups: string[]
 }
 
 export interface FavoriteTrips {

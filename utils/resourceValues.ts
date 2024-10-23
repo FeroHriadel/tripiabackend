@@ -27,4 +27,9 @@ export const batchDeleteCommentsBusDetailType = [appName + 'BatchDeleteCommentsD
 export const batchDeleteCommentsEventBusName = appName + 'BatchDeleteCommentsBus';
 export const batchDeleteCommentsEventBusRuleName = appName + 'BatchDeleteCommentsBusRule';
 
+//update user's groups event bus
+export const updateUserGroupsBusSource = [appName + 'user.update.groups.bus.source'];
+export const updateUserGroupsBusDetailType = [appName + 'UserUpdateGroupsDetailType']; 
+export const updateUserGroupsEventBusName = appName + 'UserUpdateGroupsBus';
+export const updateUserGroupsEventBusRuleName = appName + 'UserUpdateGroupsBusRule';
 

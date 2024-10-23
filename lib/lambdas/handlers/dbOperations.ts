@@ -1,5 +1,5 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput, BatchGetCommandInput, BatchGetCommand } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User, Comment, Group, Post, Invitation } from "../../../types";
 import { ResponseError } from './ResponseError';
@@ -115,7 +115,7 @@ export async function getUserByEmail(props: {email: string; table?: 'primary' | 
   }
   const response = await docClient.send(new GetCommand(getParams));
   if (!response.Item) throw new ResponseError(404, 'User not found');
-  return response.Item;
+  return response.Item as User;
 }
 
 export async function updateUser(props: {nickname: string; profilePicture: string; email: string, about: string; groups: string[]}) {
@@ -450,6 +450,16 @@ export async function getGroupsByEmail(email: string): Promise<Group[]> {
     console.error("Error fetching groups by email:", error);
     throw new Error("Could not fetch groups");
   }
+}
+
+export async function getGroupsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+  const batchGetParams: BatchGetItemCommandInput = {
+    RequestItems: {[process.env.TABLE_NAME!]: { Keys: ids.map(id => marshall({ id })) }}
+  };
+  const response = await docClient.send(new BatchGetItemCommand(batchGetParams));
+  if (!response.Responses) throw new Error('Groups not found');
+  return response.Responses[process.env.TABLE_NAME!].map(item => unmarshall(item));
 }
 
 export async function deleteGroup(id: string) {

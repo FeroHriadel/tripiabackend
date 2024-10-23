@@ -29,7 +29,7 @@ function getPutEventParams(imagesUrlsToDelete: string[]) {
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     try {
       const body = JSON.parse(event.body!)
-      const requiredKeys = ['email', 'nickname', 'profilePicture', 'about'];
+      const requiredKeys = ['email', 'nickname', 'profilePicture', 'about', 'groups'];
       checkRequiredKeys(requiredKeys, body);
       let {email, nickname, profilePicture, about, groups} = body;
       if (!profilePicture) profilePicture = '';
@@ -39,9 +39,6 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
       const requestUserEmail = getUserEmail(event);
       const isUserAdmin = isAdmin(event);
-
-      console.log('requestUserEmail, isUserAdmin, email');
-      console.log(requestUserEmail, isUserAdmin, email);
 
       if (!isUserAdmin) {
         if (requestUserEmail !== email) throw new ResponseError(403, 'Unauthorized');

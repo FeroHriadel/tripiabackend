@@ -117,10 +117,12 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'groups', api});
   const pathParamsResource = resource.addResource('{id}');
+  const batchGetResource = createResource({pathName: 'groupsbatchget', api});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
+  addFunctionToResource({resource: batchGetResource, lambdaIntegration: lambdaIntegrations['groupBatchGet'], method: 'POST'});
 }
 
 //INVITATIONS ENDPOINTS
@@ -131,6 +133,7 @@ function addInvitationsEndpoints(props: AddInvitationsEndpointsProps) {
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationGet'], method: 'GET', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['invitationDelete'], method: 'DELETE', authorizer});
+  
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE

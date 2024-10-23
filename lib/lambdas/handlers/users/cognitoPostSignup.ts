@@ -38,5 +38,6 @@ export async function handler(event: PostConfirmationConfirmSignUpTriggerEvent) 
                 {error: error.message || 'Something went wrong'}
             );
         }
+        return res(500, {error: 'Something went wrong'});
     }
 }

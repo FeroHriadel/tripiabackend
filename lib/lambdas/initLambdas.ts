@@ -3,7 +3,7 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
 import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables, WsLambdas } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
+import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName, updateUserGroupsBusDetailType, updateUserGroupsBusSource, updateUserGroupsEventBusName, updateUserGroupsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
 import { InvitationsTable } from "../tables/InvitationsTable";
 dotenv.config();
@@ -55,7 +55,6 @@ interface InitInvitationsLambdasProps {
 
 
 const appLambdas: AppLambdas = {}; //list of all lambdas after init
-const wsLambdas: WsLambdas = {}
 
 
 
@@ -184,6 +183,12 @@ function initUserLambdas(stack: Stack, props: InitUserLambdasProps) {
     folder: 'users',
     table: usersTable
   }).lambda;
+  appLambdas.userUpdateGroups = new AppLambda(stack, {
+    lambdaName: 'userUpdateGroups',
+    folder: 'users',
+    table: usersTable,
+    tableWriteRights: true,
+  }).lambda;
 }
 
 function initFavoriteTripsLambdas(stack: Stack, props: InitFavoriteTripsLambdasProps) {
@@ -247,7 +252,13 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     lambdaName: 'groupCreate',
     folder: 'groups',
     table: groupsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: updateUserGroupsBusDetailType,
+      source: updateUserGroupsBusSource,
+      busName: updateUserGroupsEventBusName,
+      ruleName: updateUserGroupsEventBusRuleName
+    }
   }).lambda;
   appLambdas.groupGet = new AppLambda(stack, {
     lambdaName: 'groupGet',
@@ -258,7 +269,13 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     lambdaName: 'groupDelete',
     folder: 'groups',
     table: groupsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: updateUserGroupsBusDetailType,
+      source: updateUserGroupsBusSource,
+      busName: updateUserGroupsEventBusName,
+      ruleName: updateUserGroupsEventBusRuleName
+    }
   }).lambda;
   appLambdas.groupUpdate = new AppLambda(stack, {
     lambdaName: 'groupUpdate',
@@ -266,7 +283,18 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     table: groupsTable,
     tableWriteRights: true,
     secondaryTable: invitationsTable,
-    secondaryTableWriteRights: true
+    secondaryTableWriteRights: true,
+    eventBusData: {
+      detailType: updateUserGroupsBusDetailType,
+      source: updateUserGroupsBusSource,
+      busName: updateUserGroupsEventBusName,
+      ruleName: updateUserGroupsEventBusRuleName
+    }
+  }).lambda;
+  appLambdas.groupBatchGet = new AppLambda(stack, {
+    lambdaName: 'groupBatchGet',
+    folder: 'groups',
+    table: groupsTable,
   }).lambda;
 }
 
@@ -301,7 +329,7 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initUserLambdas(stack, {usersTable: tables.usersTable});
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
-  initGroupLambdas(stack, {groupsTable: tables.groupsTable, invitationsTable: tables.invitationsTable});
+  initGroupLambdas(stack, {groupsTable: tables.groupsTable, invitationsTable: tables.invitationsTable });
   initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable});
   return appLambdas;
 }

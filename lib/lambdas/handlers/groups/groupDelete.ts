@@ -1,7 +1,30 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { res, adminOnly, getUserEmail, isAdmin } from '../utils';
+import { res, adminOnly, getUserEmail, isAdmin, log } from '../utils';
 import { ResponseError } from '../ResponseError';
 import { getCategoryById, deleteCategory, deleteGroup, getUserByEmail, getGroupById } from "../dbOperations";
+import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge"
+
+
+
+const eventBridgeClient = new EventBridgeClient({region: process.env.REGION});
+
+
+
+function getPutEventParams(userEmail: string, groupId: string) {
+    const params = {
+        Entries: [
+            {
+                Source: process.env.EVENT_BUS_SOURCE,
+                DetailType: process.env.EVENT_BUS_DETAIL_TYPE,
+                EventBusName: process.env.EVENT_BUS_NAME,
+                Detail: JSON.stringify({userEmail, groupId}),
+                Resources: []
+            }
+        ]
+    };
+    console.log('Event bus params: ', params);
+    return params;
+}
 
 
 
@@ -14,6 +37,11 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
         const deleteGroupResponse = await deleteGroup(id!);
         if (!deleteGroupResponse) throw new ResponseError(500, 'Deletion failed');
+
+        const busParams = getPutEventParams(userEmail, id);
+        const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
+        log('Bus response: ', eventBusRes);
+
         return res(200, {message: 'Deleted', id})
 
     } catch (error) {
