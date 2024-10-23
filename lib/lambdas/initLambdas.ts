@@ -5,6 +5,7 @@ import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables, WsLambdas } from
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
+import { InvitationsTable } from "../tables/InvitationsTable";
 dotenv.config();
 
 
@@ -44,6 +45,7 @@ interface InitCommentsLambdasProps {
 
 interface InitGroupsLambdasProps {
   groupsTable: Table;
+  invitationsTable: Table;
 }
 
 interface InitInvitationsLambdasProps {
@@ -240,7 +242,7 @@ function initCommentLambdas(stack: Stack, props: InitCommentsLambdasProps) {
 }
 
 function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
-  const { groupsTable } = props;
+  const { groupsTable, invitationsTable } = props;
   appLambdas.groupCreate = new AppLambda(stack, {
     lambdaName: 'groupCreate',
     folder: 'groups',
@@ -262,7 +264,9 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
     lambdaName: 'groupUpdate',
     folder: 'groups',
     table: groupsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
+    secondaryTable: invitationsTable,
+    secondaryTableWriteRights: true
   }).lambda;
 }
 
@@ -279,6 +283,12 @@ function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps)
     folder: 'invitations',
     table: invitationsTable
   }).lambda;
+  appLambdas.invitationDelete = new AppLambda(stack, {
+    lambdaName: 'invitationDelete',
+    folder: 'invitations',
+    table: invitationsTable,
+    tableWriteRights: true
+  }).lambda;
 }
 
 
@@ -291,7 +301,7 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initUserLambdas(stack, {usersTable: tables.usersTable});
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
-  initGroupLambdas(stack, {groupsTable: tables.groupsTable});
+  initGroupLambdas(stack, {groupsTable: tables.groupsTable, invitationsTable: tables.invitationsTable});
   initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable});
   return appLambdas;
 }

@@ -12,12 +12,12 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
     return res(200, invitations);
       
   } catch (error) {
-      if (error instanceof Error || error instanceof ResponseError) {
-          return res(
-              (error as ResponseError).statusCode || 500, 
-              {error: error.message || 'Something went wrong'}
-          );
-      }
-      return res(500, {error: 'Something went wrong'});
+    if (error instanceof Error || error instanceof ResponseError) {
+      return res(
+          (error as ResponseError).statusCode || 500, 
+          {error: error.message || 'Something went wrong'}
+      );
+    }
+    return res(500, {error: 'Something went wrong'});
   }
 }

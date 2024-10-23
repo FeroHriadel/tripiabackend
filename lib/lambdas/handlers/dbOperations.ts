@@ -118,14 +118,14 @@ export async function getUserByEmail(props: {email: string; table?: 'primary' | 
   return response.Item;
 }
 
-export async function updateUser(props: {nickname: string; profilePicture: string; email: string, about: string;}) {
-  const { nickname, profilePicture, email, about } = props;
+export async function updateUser(props: {nickname: string; profilePicture: string; email: string, about: string; groups: string[]}) {
+  const { nickname, profilePicture, email, about, groups } = props;
   const updateParams: UpdateCommandInput = {
     TableName: process.env.TABLE_NAME!,
     Key: {email},
-    UpdateExpression: 'set #nickname = :nickname, #nickname_lower = :nickname_lower, #profilePicture = :profilePicture, #about = :about, #updatedAt = :updatedAt',
-    ExpressionAttributeNames: {'#nickname': 'nickname', '#nickname_lower': 'nickname_lower', '#profilePicture': 'profilePicture', '#about': 'about', '#updatedAt': 'updatedAt'},
-    ExpressionAttributeValues: {':nickname': nickname, ':nickname_lower': nickname.toLowerCase(), ':profilePicture': profilePicture, ':about': about,':updatedAt': new Date().toISOString()},
+    UpdateExpression: 'set #nickname = :nickname, #nickname_lower = :nickname_lower, #profilePicture = :profilePicture, #about = :about, #groups = :groups, #updatedAt = :updatedAt',
+    ExpressionAttributeNames: {'#nickname': 'nickname', '#nickname_lower': 'nickname_lower', '#profilePicture': 'profilePicture', '#about': 'about', '#groups': 'groups', '#updatedAt': 'updatedAt'},
+    ExpressionAttributeValues: {':nickname': nickname, ':nickname_lower': nickname.toLowerCase(), ':profilePicture': profilePicture, ':about': about, ':groups': groups, ':updatedAt': new Date().toISOString()},
     ReturnValues: 'ALL_NEW'
   };
   const response = await docClient.send(new UpdateCommand(updateParams));
@@ -475,6 +475,22 @@ export async function updateGroup(id: string, name: string) {
   return response.Attributes;
 }
 
+export async function updateGroupMembers(props: {id: string, members: string[], table: 'primary' | 'secondary'}) {
+  let { id, members, table } = props;
+  if (!table) props.table = 'primary';
+  const updateParams: UpdateCommandInput = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME,
+      Key: {id},
+      UpdateExpression: 'set #members = :members, #updatedAt = :updatedAt',
+      ExpressionAttributeNames: {'#members': 'members', '#updatedAt': 'updatedAt'},
+      ExpressionAttributeValues: {':members': members, ':updatedAt': new Date().toISOString()},
+      ReturnValues: 'ALL_NEW'
+  };
+  const response = await docClient.send(new UpdateCommand(updateParams));
+  if (!response?.Attributes) throw new ResponseError(500, 'Update failed');
+  return response.Attributes;
+}
+
 
 
 //CONNECTIONS
@@ -603,4 +619,27 @@ export async function getInvitationsByInvitee(invitee: string, table?: 'primary'
   const response = await client.send(new QueryCommand(queryParams));
   if (!response.Items) throw new Error('Failed to find invitation');
   return response.Items as Invitation[];
+}
+
+export async function deleteInvitation(props: {id: string, table?: 'primary' | 'secondary'}) {
+  let { id, table } = props;
+  if (!table) table = 'primary';
+  const deleteParams: DeleteCommandInput = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+      Key: {id}
+  }
+  const response = await docClient.send(new DeleteCommand(deleteParams));
+  return response;
+}
+
+export async function getInvitationById(props: {id: string, table?: 'primary' | 'secondary'}) {
+  let{ id, table } = props;
+  if (!table) table = 'primary';
+  const getParams = {
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,
+      Key: {id},
+  }
+  const response = await docClient.send(new GetCommand(getParams));
+  if (!response.Item) throw new ResponseError(404, 'Invitation not found');
+  return response.Item as Invitation;
 }

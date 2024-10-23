@@ -31,10 +31,11 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
       const body = JSON.parse(event.body!)
       const requiredKeys = ['email', 'nickname', 'profilePicture', 'about'];
       checkRequiredKeys(requiredKeys, body);
-      let {email, nickname, profilePicture, about} = body;
+      let {email, nickname, profilePicture, about, groups} = body;
       if (!profilePicture) profilePicture = '';
       if (!about) about = '';
       if (nickname.length < 2) nickname = email.split('@')[0];
+      if (!groups) groups = [];
 
       const requestUserEmail = getUserEmail(event);
       const isUserAdmin = isAdmin(event);
@@ -55,7 +56,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
         log('deleteImagesEventBus response: ', eventBusRes);
       }
       
-      const updatedUser = await updateUser({nickname, profilePicture, email, about});
+      const updatedUser = await updateUser({nickname, profilePicture, email, about, groups});
       return res(200, updatedUser);
 
     } catch (error) {

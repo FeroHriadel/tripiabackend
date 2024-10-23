@@ -127,8 +127,10 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
 function addInvitationsEndpoints(props: AddInvitationsEndpointsProps) {
   const { api, lambdaIntegrations, authorizer } = props;
   const resource = createResource({pathName: 'invitations', api});
+  const pathParamsResource = resource.addResource('{id}');
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationCreate'], method: 'POST', authorizer});
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['invitationGet'], method: 'GET', authorizer});
+  addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['invitationDelete'], method: 'DELETE', authorizer});
 }
 
 //MAIN FUNCTION: CALLS ALL FUNCTIONS ABOVE
