@@ -1,8 +1,8 @@
 import { v4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'; 
-import { res, adminOnly, getUserEmail, checkRequiredKeys } from '../utils';
+import { res, getUserEmail, checkRequiredKeys } from '../utils';
 import { Invitation } from '../../../../types';
-import { saveInvitation, getInvitationsByInvitee } from '../dbOperations';
+import { saveInvitation, getInvitationsByInvitee, getGroupById } from '../dbOperations';
 import { ResponseError } from '../ResponseError';
 
 
@@ -49,6 +49,9 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
 
     const usersInvitations = await getInvitationsByInvitee(body.invitee);
     if (invitationExists({invitee: body.invitee, groupId: body.groupId, invitations: usersInvitations})) throw new ResponseError(400, 'Invitation already exists');
+
+    const group = await getGroupById(body.groupId, 'secondary');
+    if (group.members && group.members.includes(body.invitee)) throw new ResponseError(400, 'User is already a member');
 
     const invitationToSave = createInvitationObject({...body});
     const saveInvitationResponse = await saveInvitation(invitationToSave);

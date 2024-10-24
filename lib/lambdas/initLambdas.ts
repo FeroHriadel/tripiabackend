@@ -50,6 +50,7 @@ interface InitGroupsLambdasProps {
 
 interface InitInvitationsLambdasProps {
   invitationsTable: Table;
+  groupsTable: Table;
 }
 
 
@@ -299,12 +300,13 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
 }
 
 function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps) {
-  const{ invitationsTable } = props;
+  const{ invitationsTable, groupsTable } = props;
   appLambdas.invitationCreate = new AppLambda(stack, {
     lambdaName: 'invitationCreate',
     folder: 'invitations',
     table: invitationsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
+    secondaryTable: groupsTable
   }).lambda;
   appLambdas.invitationGet = new AppLambda(stack, {
     lambdaName: 'invitationGet',
@@ -315,7 +317,7 @@ function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps)
     lambdaName: 'invitationDelete',
     folder: 'invitations',
     table: invitationsTable,
-    tableWriteRights: true
+    tableWriteRights: true,
   }).lambda;
 }
 
@@ -330,6 +332,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initFavoriteTripsLambdas(stack, {favoriteTripsTable: tables.favoriteTripsTable});
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
   initGroupLambdas(stack, {groupsTable: tables.groupsTable, invitationsTable: tables.invitationsTable });
-  initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable});
+  initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable, groupsTable: tables.groupsTable});
   return appLambdas;
 }

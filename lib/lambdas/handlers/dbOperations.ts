@@ -423,14 +423,15 @@ export async function saveGroup(group: Group) {
   return response;
 }
 
-export async function getGroupById(id: string) {
+export async function getGroupById(id: string, table?: 'primary' | 'secondary') {
+  if (!table) table = 'primary';
   const getParams = {
-      TableName: process.env.TABLE_NAME!,
+      TableName: table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!,	
       Key: {id},
   }
   const response = await docClient.send(new GetCommand(getParams));
   if (!response.Item) throw new ResponseError(404, 'Group not found');
-  return response.Item;
+  return response.Item as Group;
 }
 
 export async function getGroupsByEmail(email: string): Promise<Group[]> {
