@@ -40,6 +40,9 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
       const requestUserEmail = getUserEmail(event);
       const isUserAdmin = isAdmin(event);
 
+      log('requestUserEmail: ', requestUserEmail);
+      log('email', email);
+
       if (!isUserAdmin) {
         if (requestUserEmail !== email) throw new ResponseError(403, 'Unauthorized');
       }

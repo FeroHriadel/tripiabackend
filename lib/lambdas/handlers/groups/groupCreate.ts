@@ -55,7 +55,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
     const saveGroupResponse = await saveGroup(groupToSave);
     if (!saveGroupResponse) throw new ResponseError(500, 'Group was not saved.');
 
-    const busParams = getPutEventParams(userEmail, groupToSave.id);
+    const busParams = getPutEventParams(userEmail, groupToSave.id); //add group to User.groups
     const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
     log('Bus response: ', eventBusRes);
     

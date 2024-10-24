@@ -72,7 +72,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             if (!isUserAdmin) { if (!groupExists.members.includes(userEmail)) throw new ResponseError(403, 'Unauthorized'); }
             const updatedMembers = toggleGroupMember(groupExists.members, body.email);
             const updatedGroup = await updateGroupMembers({id: id!, members: updatedMembers, table: 'primary'});
-            const busParams = getPutEventParams(userEmail, groupExists.id);
+            const busParams = getPutEventParams(body.email, groupExists.id); //remove/add group in User.groups
             const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
             log('Bus response: ', eventBusRes);
             return res(200, updatedGroup);

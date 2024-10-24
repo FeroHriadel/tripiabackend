@@ -122,7 +122,7 @@ function addGroupsEndpoints(props: AddGroupsEndpointsProps) {
   addFunctionToResource({resource, lambdaIntegration: lambdaIntegrations['groupGet'], method: 'GET', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupUpdate'], method: 'PUT', authorizer});
   addFunctionToResource({resource: pathParamsResource, lambdaIntegration: lambdaIntegrations['groupDelete'], method: 'DELETE', authorizer});
-  addFunctionToResource({resource: batchGetResource, lambdaIntegration: lambdaIntegrations['groupBatchGet'], method: 'POST'});
+  addFunctionToResource({resource: batchGetResource, lambdaIntegration: lambdaIntegrations['groupBatchGet'], method: 'POST', authorizer});
 }
 
 //INVITATIONS ENDPOINTS

@@ -38,7 +38,7 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
         const deleteGroupResponse = await deleteGroup(id!);
         if (!deleteGroupResponse) throw new ResponseError(500, 'Deletion failed');
 
-        const busParams = getPutEventParams(userEmail, id);
+        const busParams = getPutEventParams(userEmail, id); //remove group from User.groups
         const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
         log('Bus response: ', eventBusRes);
 
