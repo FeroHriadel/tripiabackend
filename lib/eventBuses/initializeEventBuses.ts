@@ -2,6 +2,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { DeleteImagesEventBus } from "./DeleteImagesEventBus";
 import { BatchDeleteCommentsEventBus } from "./BatchDeleteCommentsEventBus";
 import { UpdateUserGroupsEventBus } from "./UpdateUserGroupsEventBus";
+import { BatchDeletePostsEventBus } from "./BatchDeletePostsEventBus";
 import { Stack } from "aws-cdk-lib";
 import { AppEventBuses } from "../../types";
 
@@ -14,6 +15,8 @@ interface InitializeEventBusesProps {
     batchDeleteCommentsEventBusTargetFn: NodejsFunction;
     updateUserGroupsEventBusPublisherFns: NodejsFunction[];
     updateUserGroupsEventBusTargetFn: NodejsFunction;
+    batchDeletePostsEventBusPublisherFns: NodejsFunction[];
+    batchDeletePostsEventBusTargetFn: NodejsFunction;
 }
 
 
@@ -25,7 +28,9 @@ export function initializeEventBuses(stack: Stack, props: InitializeEventBusesPr
     batchDeleteCommentsEventBusPublisherFns, 
     batchDeleteCommentsEventBusTargetFn,
     updateUserGroupsEventBusPublisherFns,
-    updateUserGroupsEventBusTargetFn
+    updateUserGroupsEventBusTargetFn,
+    batchDeletePostsEventBusPublisherFns,
+    batchDeletePostsEventBusTargetFn
   } = props;
   const deleteImagesEventBus = new DeleteImagesEventBus(stack, {
     publisherFunctions: deleteImagesEventBusPublisherFns,
@@ -39,10 +44,15 @@ export function initializeEventBuses(stack: Stack, props: InitializeEventBusesPr
     publisherFunctions: updateUserGroupsEventBusPublisherFns,
     targetFunction: updateUserGroupsEventBusTargetFn
   }).bus;
+  const batchDeletePostsEventBus = new BatchDeletePostsEventBus(stack, {
+    publisherFunctions: batchDeletePostsEventBusPublisherFns,
+    targetFunction: batchDeletePostsEventBusTargetFn
+  }).bus;
 
   return { 
     deleteImagesEventBus,
     batchDeleteCommentsEventBus,
-    updateUserGroupsEventBus
+    updateUserGroupsEventBus,
+    batchDeletePostsEventBus
   };
 }

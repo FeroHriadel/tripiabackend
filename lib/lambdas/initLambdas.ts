@@ -3,7 +3,7 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { AppLambda } from "./AppLambda";
 import { AppBuckets, AppLambdas, AppPolicyStatemens, AppTables, WsLambdas } from "../../types";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName, updateUserGroupsBusDetailType, updateUserGroupsBusSource, updateUserGroupsEventBusName, updateUserGroupsEventBusRuleName } from "../../utils/resourceValues";
+import { imagesBucketAccessTag, deleteImagesBusDetailType, deleteImagesBusSource, deleteImagesEventBusName, deleteImagesEventBusRuleName, batchDeleteCommentsBusDetailType, batchDeleteCommentsBusSource, batchDeleteCommentsEventBusName, batchDeleteCommentsEventBusRuleName, updateUserGroupsBusDetailType, updateUserGroupsBusSource, updateUserGroupsEventBusName, updateUserGroupsEventBusRuleName, batchDeletePostsBusDetailType, batchDeletePostsBusSource, batchDeletePostsEventBusName, batchDeletePostsEventBusRuleName } from "../../utils/resourceValues";
 import * as dotenv from 'dotenv';
 import { InvitationsTable } from "../tables/InvitationsTable";
 dotenv.config();
@@ -51,6 +51,10 @@ interface InitGroupsLambdasProps {
 interface InitInvitationsLambdasProps {
   invitationsTable: Table;
   groupsTable: Table;
+}
+
+interface InitPostsLambdasProps {
+  postsTable: Table;
 }
 
 
@@ -123,10 +127,10 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
       ruleName: deleteImagesEventBusRuleName
     },
     secondaryEventBusData: {
-      detailType: batchDeleteCommentsBusDetailType, 
-      source: batchDeleteCommentsBusSource, 
-      busName: batchDeleteCommentsEventBusName, 
-      ruleName: batchDeleteCommentsEventBusRuleName
+      detailType: batchDeletePostsBusDetailType, 
+      source: batchDeletePostsBusSource, 
+      busName: batchDeletePostsEventBusName, 
+      ruleName: batchDeletePostsEventBusRuleName
     },
   }).lambda;
   appLambdas.tripBatchGet = new AppLambda(stack, {
@@ -276,6 +280,12 @@ function initGroupLambdas(stack: Stack, props: InitGroupsLambdasProps) {
       source: updateUserGroupsBusSource,
       busName: updateUserGroupsEventBusName,
       ruleName: updateUserGroupsEventBusRuleName
+    },
+    secondaryEventBusData: {
+      detailType: batchDeletePostsBusDetailType,
+      source: batchDeletePostsBusSource,
+      busName: batchDeletePostsEventBusName,
+      ruleName: batchDeletePostsEventBusRuleName
     }
   }).lambda;
   appLambdas.groupUpdate = new AppLambda(stack, {
@@ -321,6 +331,21 @@ function initInvitationLambdas(stack: Stack, props: InitInvitationsLambdasProps)
   }).lambda;
 }
 
+function initPostLambdas(stack: Stack, props: InitPostsLambdasProps) {
+  appLambdas.postBatchDelete = new AppLambda(stack, {
+    lambdaName: 'postBatchDelete',
+    folder: 'posts',
+    table: props.postsTable,
+    tableWriteRights: true,
+    eventBusData: {
+      detailType: deleteImagesBusDetailType, 
+      source: deleteImagesBusSource, 
+      busName: deleteImagesEventBusName, 
+      ruleName: deleteImagesEventBusRuleName
+    }
+  }).lambda;
+}
+
 
 
 export function initLambdas(stack: Stack, props: InitLambdasProps) {
@@ -333,5 +358,6 @@ export function initLambdas(stack: Stack, props: InitLambdasProps) {
   initCommentLambdas(stack, {commentsTable: tables.commentsTable, tripsTable: tables.tripsTable});
   initGroupLambdas(stack, {groupsTable: tables.groupsTable, invitationsTable: tables.invitationsTable });
   initInvitationLambdas(stack, {invitationsTable: tables.invitationsTable, groupsTable: tables.groupsTable});
+  initPostLambdas(stack, {postsTable: tables.postsTable});
   return appLambdas;
 }

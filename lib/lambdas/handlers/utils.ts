@@ -90,6 +90,7 @@ export function structureImagesToDeleteForEventBus(imagesArr: string[]) {
   imagesArr.forEach((image, index) => {
       images[`image${index + 1}`] = getImageKey(image);
   });
+  log('Images to delete: ', images);
   return images; // {image1: '2024-06VFPrasnica.jpg65817.png', image2: '2024-06VFPrasnica2.jpg47097.png', ...}
 }
 

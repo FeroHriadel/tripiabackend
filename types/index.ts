@@ -37,6 +37,7 @@ export interface AppLambdas {
   invitationCreate?: NodejsFunction;
   invitationGet?: NodejsFunction;
   invitationDelete?: NodejsFunction;
+  postBatchDelete?: NodejsFunction;
 }
 
 export interface WsLambdas {
@@ -80,6 +81,7 @@ export interface AppEventBuses {
   deleteImagesEventBus: EventBus;
   batchDeleteCommentsEventBus: EventBus;
   updateUserGroupsEventBus: EventBus;
+  batchDeletePostsEventBus: EventBus;
 }
 
 export interface Category {

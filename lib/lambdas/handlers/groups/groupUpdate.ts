@@ -54,25 +54,25 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
             const updatedGroup = await updateGroup(id!, newName);
             return res(200, updatedGroup);
 
-        //if group.members update (user was invited to group)
+        //if group.members update (user joins - accepted invite)
         } else if (body.invitationId) {
             const { invitationId } = body;
             const invitation = await getInvitationById({id: invitationId, table: 'secondary'}); if(!invitation) throw new ResponseError(404, 'Invitation not found');
             const updatedMembers = [...groupExists.members, invitation.invitee];
             const updatedGroup = await updateGroupMembers({id: id!, members: updatedMembers, table: 'primary'});
             const busParams = getPutEventParams(userEmail, groupExists.id);
-            const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
+            const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams)); //add group to User.groups
             log('Bus response: ', eventBusRes);
             const deleteInvitationRes = await deleteInvitation({id: invitationId, table: 'secondary'});
             return res(200, updatedGroup);
 
-        //if group.members update (user leaves or joins group)
+        //if group.members update (user leaves)
         } else {
             checkRequiredKeys(['email'], body);
             if (!isUserAdmin) { if (!groupExists.members.includes(userEmail)) throw new ResponseError(403, 'Unauthorized'); }
             const updatedMembers = toggleGroupMember(groupExists.members, body.email);
             const updatedGroup = await updateGroupMembers({id: id!, members: updatedMembers, table: 'primary'});
-            const busParams = getPutEventParams(body.email, groupExists.id); //remove/add group in User.groups
+            const busParams = getPutEventParams(body.email, groupExists.id); //remove group from User.groups
             const eventBusRes = await eventBridgeClient.send(new PutEventsCommand(busParams));
             log('Bus response: ', eventBusRes);
             return res(200, updatedGroup);

@@ -77,7 +77,8 @@ export class TripiaStack extends cdk.Stack {
         this.lambdas.tripUpdate!, 
         this.lambdas.commentDelete!,
         this.lambdas.commentBatchDelete!,
-        this.wsLambdas.postDelete!
+        this.lambdas.postBatchDelete!,
+        this.wsLambdas.postDelete!,
       ],
       deleteImagesEventBusTargetFn: this.lambdas.deleteImages!,
       batchDeleteCommentsEventBusPublisherFns: [
@@ -89,8 +90,12 @@ export class TripiaStack extends cdk.Stack {
         this.lambdas.groupUpdate!,
         this.lambdas.groupDelete!
       ],
-      updateUserGroupsEventBusTargetFn: this.lambdas.userUpdateGroups!
-    })
+      updateUserGroupsEventBusTargetFn: this.lambdas.userUpdateGroups!,
+      batchDeletePostsEventBusPublisherFns: [
+        this.lambdas.groupDelete!
+      ],
+      batchDeletePostsEventBusTargetFn: this.lambdas.postBatchDelete!
+    });
   }
 
   private initApiGateway() {

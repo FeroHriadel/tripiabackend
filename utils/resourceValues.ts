@@ -33,3 +33,9 @@ export const updateUserGroupsBusDetailType = [appName + 'UserUpdateGroupsDetailT
 export const updateUserGroupsEventBusName = appName + 'UserUpdateGroupsBus';
 export const updateUserGroupsEventBusRuleName = appName + 'UserUpdateGroupsBusRule';
 
+//batch delete posts event bus
+export const batchDeletePostsBusSource = [appName + 'batch.delete.Posts.bus.source'];
+export const batchDeletePostsBusDetailType = [appName + 'BatchDeletePostsDetailType']; 
+export const batchDeletePostsEventBusName = appName + 'BatchDeletePostsBus';
+export const batchDeletePostsEventBusRuleName = appName + 'BatchDeletePostsBusRule';
+

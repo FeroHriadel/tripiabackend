@@ -1,5 +1,5 @@
 import { DynamoDB, PutItemCommand, PutItemCommandInput, QueryCommandInput, BatchGetItemCommand, BatchGetItemCommandInput, BatchWriteItemCommand, BatchWriteItemCommandInput, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput, BatchGetCommandInput, BatchGetCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, DynamoDBDocumentClient, GetCommand, GetCommandInput, UpdateCommand, UpdateCommandInput, DeleteCommand, DeleteCommandInput, ScanCommand, ScanCommandInput, PutCommand, PutCommandOutput, DeleteCommandOutput, BatchGetCommandInput, BatchGetCommand, BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Category, FavoriteTrips, Trip, User, Comment, Group, Post, Invitation } from "../../../types";
 import { ResponseError } from './ResponseError';
@@ -605,6 +605,24 @@ export async function getPostById(props: {id: string, table?: 'primary' | 'secon
   if (!response.Item) throw new ResponseError(404, 'Item not found');
   return response.Item;
 }
+
+export const deletePostsByIds = async (props: { postIds: string[]; table?: 'primary' | 'secondary' }): Promise<void> => {
+  let { postIds, table } = props;
+  if (!table) table = 'primary';
+  const tableName = table === 'primary' ? process.env.TABLE_NAME! : process.env.SECONDARY_TABLE_NAME!;
+  const deleteRequests = postIds.map(postId => ({ DeleteRequest: {Key: { id: postId }} }));
+  const batchSize = 25; // BatchWrite supports up to 25 requests at a time
+  for (let i = 0; i < deleteRequests.length; i += batchSize) {
+    const batch = deleteRequests.slice(i, i + batchSize);
+    try {
+      await docClient.send(new BatchWriteCommand({ RequestItems: {[tableName]: batch} }));
+      console.log(`Deleted batch ${i / batchSize + 1} of posts`);
+    } catch (err) {
+      console.error('Error deleting posts batch:', err);
+      throw new Error('Error deleting posts');
+    }
+  }
+};
 
 
 
