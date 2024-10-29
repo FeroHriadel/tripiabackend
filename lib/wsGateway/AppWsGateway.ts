@@ -98,7 +98,7 @@ export class AppWsGateway {
   }
 
   private addWsEndpointToEnvVars() {
-    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda', 'wsAuthLambda'];
+    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'wsAuthLambda']; //these lambdas don't need ws endpoint in env vars
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
        if (excludedKeys.includes(key)) return;
       const lambda = this.wsLambdas[key];
@@ -113,7 +113,7 @@ export class AppWsGateway {
       resources: [`arn:aws:execute-api:${this.stack.region}:${this.stack.account}:${this.wsApi.apiId}/*`],
     });
     //these lambdas don't need the policy
-    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'defaultLambda', 'wsAuthLambda'];
+    const excludedKeys: (keyof WsLambdas)[] = ['connectLambda', 'disconnectLambda', 'wsAuthLambda'];
     //give the policy to all other lambdas
     (Object.keys(this.wsLambdas) as Array<keyof WsLambdas>).forEach((key) => {
       if (excludedKeys.includes(key)) return;
