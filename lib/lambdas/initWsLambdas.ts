@@ -25,6 +25,10 @@ interface InitLambdasProps {
   policyStatements: AppPolicyStatemens;
 }
 
+interface InitWsAuthLambdaProps {
+  groupsTable: Table;
+}
+
 interface InitConnectionLambdasProps {
   connectionsTable: Table;
 }
@@ -40,10 +44,11 @@ const wsLambdas: WsLambdas = {}
 
 
 
-function initWsAuthLambda(stack: Stack) {
+function initWsAuthLambda(stack: Stack, props: InitWsAuthLambdaProps) {
   wsLambdas.wsAuthLambda = new AppLambda(stack, {
     lambdaName: 'wsAuth',
     folder: 'ws',
+    table: props.groupsTable
   }).lambda;
 }
 
@@ -104,6 +109,6 @@ export function initWsLambdas(stack: Stack, props: InitLambdasProps) {
   const { tables } = props;
   initConnectionLambdas(stack, { connectionsTable: tables.connectionsTable });
   initPostsLambdas(stack, { connectionsTable: tables.connectionsTable, postsTable: tables.postsTable });
-  initWsAuthLambda(stack);
+  initWsAuthLambda(stack, {groupsTable: props.tables.groupsTable});
   return wsLambdas;
 }

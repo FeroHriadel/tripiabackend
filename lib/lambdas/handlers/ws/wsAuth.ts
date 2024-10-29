@@ -2,6 +2,7 @@ import { APIGatewayAuthorizerResult, APIGatewayRequestAuthorizerEvent } from "aw
 import * as jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 import { log } from "../utils";
+import { getGroupById } from "../dbOperations";
 
 // Modify the generatePolicy function to include context data
 function generatePolicy(
@@ -31,42 +32,29 @@ function generatePolicy(
 
 
 export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<APIGatewayAuthorizerResult> => {
+  // get groupId and Cognito idToken from queryStringParams
+  const groupId = event.queryStringParameters?.groupId;
   const token = event.queryStringParameters?.token;
   log("token: ", token);
-
-  if (!token) {
-    log("No token provided");
-    return generatePolicy("user", event.methodArn, "Deny");
-  }
+  log("groupId: ", groupId);
+  if (!token) { log("No token provided"); return generatePolicy("user", event.methodArn, "Deny"); }
+  if (!groupId) { log("No groupId provided"); return generatePolicy("user", event.methodArn, "Deny"); }
 
   try {
-    // Decode the token without verifying it to extract the 'iss' (issuer) field
+    // decode the token without verifying it to extract the 'iss' (issuer) field
     const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt | null;
-    if (!decodedJwt || typeof decodedJwt === 'string') {
-      log("Invalid token format");
-      throw new Error("Invalid token format");
-    }
-
+    if (!decodedJwt || typeof decodedJwt === 'string') { log("Invalid token format"); throw new Error("Invalid token format"); }
     const { header, payload } = decodedJwt;
+    if (typeof payload !== 'object' || payload === null || !('iss' in payload)) { log("Invalid JWT payload structure"); throw new Error("Invalid JWT payload structure"); }
 
-    // Ensure payload is a JwtPayload object
-    if (typeof payload !== 'object' || payload === null || !('iss' in payload)) {
-      log("Invalid JWT payload structure");
-      throw new Error("Invalid JWT payload structure");
-    }
+    // extract issuer (Cognito User Pool URL)
+    const issuer = (payload as jwt.JwtPayload).iss; 
+    if (!issuer || !issuer.includes('cognito-idp')) { log("Invalid token issuer"); throw new Error("Invalid token issuer"); }
 
-    const issuer = (payload as jwt.JwtPayload).iss; // Extract issuer (Cognito User Pool URL)
-    if (!issuer || !issuer.includes('cognito-idp')) {
-      log("Invalid token issuer");
-      throw new Error("Invalid token issuer");
-    }
+    // use the issuer URL to get the JWKS URI
+    const client = jwksClient({ jwksUri: `${issuer}/.well-known/jwks.json` });
 
-    // Use the issuer URL to get the JWKS URI
-    const client = jwksClient({
-      jwksUri: `${issuer}/.well-known/jwks.json`,
-    });
-
-    // Helper to retrieve the signing key
+    // helper to retrieve the signing key
     function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
       client.getSigningKey(header.kid, (err, key) => {
         const signingKey = key?.getPublicKey();
@@ -82,7 +70,13 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent): Promise<
       });
     });
 
-    // If token is valid, allow the request and pass the decoded token in context
+    const userEmail = (verifiedToken as jwt.JwtPayload)?.email; log('userEmail: ', userEmail);
+    if (!userEmail) throw new Error("User email not found in token");
+    const group = await getGroupById(groupId); log('group: ', group)
+    if (!group.members.includes(userEmail)) throw new Error("User is not a member of this group");
+
+
+    // if token valid & user is member of group, allow the request and pass the decoded token in context
     return generatePolicy("user", event.methodArn, "Allow", { decodedToken: verifiedToken });
 
   } catch (error) {
