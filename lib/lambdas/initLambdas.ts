@@ -127,10 +127,10 @@ function initTripLambdas(stack: Stack, props: InitTripLambdasProps) {
       ruleName: deleteImagesEventBusRuleName
     },
     secondaryEventBusData: {
-      detailType: batchDeletePostsBusDetailType, 
-      source: batchDeletePostsBusSource, 
-      busName: batchDeletePostsEventBusName, 
-      ruleName: batchDeletePostsEventBusRuleName
+      detailType: batchDeleteCommentsBusDetailType, 
+      source: batchDeleteCommentsBusSource, 
+      busName: batchDeleteCommentsEventBusName, 
+      ruleName: batchDeleteCommentsEventBusRuleName
     },
   }).lambda;
   appLambdas.tripBatchGet = new AppLambda(stack, {
