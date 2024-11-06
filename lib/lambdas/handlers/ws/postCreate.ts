@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
+import { ApiGatewayManagementApiClient } from '@aws-sdk/client-apigatewaymanagementapi';
 import { v4 } from 'uuid';
 import { ResponseError } from '../ResponseError';
 import { checkRequiredKeys, log, wsRes, sendToWSConnections, getWsUserEmail } from '../utils';
@@ -17,16 +17,17 @@ interface CreatePostObjProps {
   groupId: string; 
   body: string; 
   images?: string[];
+  createdAt?: string;
 }
 
 
 
 function createPostObj(props: CreatePostObjProps) {
-  const { postedBy, groupId, body, images } = props;
+  const { postedBy, groupId, body, images, createdAt } = props;
   const post = {
     id: v4(),
     groupId,
-    createdAt: new Date().toISOString(),
+    createdAt: createdAt || new Date().toISOString(),
     postedBy,
     body,
     images: images ? images : [],
