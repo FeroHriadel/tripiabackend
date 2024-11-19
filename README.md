@@ -1,6 +1,6 @@
 # TRIPIA
-- aws serverless IaC backend infrastructure
-- backed for a frontend app !TODO: PASTE LINK TO FE!
+- aws serverless IaC backend - restApi & websocketApi
+- backed for a frontend app: https://github.com/FeroHriadel/tripiafrontend.git
 <br />
 
 ## FEATURES
